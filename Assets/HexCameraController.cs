@@ -3,7 +3,7 @@ using UnityEngine;
 public class HexCameraController : MonoBehaviour
 {
     public Camera cam;
-    public float scrollSpeed = 5f;   // Speed of vertical scrolling
+    private float scrollSpeed = 10f;   // Speed of vertical scrolling
     public float tileHeight = 1.732f; // Approximate height of a hex tile
     public int gridHeight = 50;      // Number of hex rows
 

@@ -3,14 +3,15 @@ using UnityEngine.Tilemaps;
 
 public class HexTilemapGenerator : MonoBehaviour
 {
-    public int width = 30;
-    public int height = 50;
+    private int width = 30;
+    private int height = 300;
     public Tilemap tilemap;
     public TileBase dirtTile, waterTile, stoneTile, foodTile;
 
-    public float noiseScale = 0.5f; // Controls clustering
-    public float waterThreshold = 0.6f;
-    public float stoneThreshold = 0.2f; // Lower stone chance
+    public float noiseScale = 0.3f; // Lower for bigger clusters
+    public float stoneNoiseScale = 0.15f; // Stone uses separate noise for better clustering
+    public float waterThreshold = 0.5f;
+    public float stoneThreshold = 0.3f;
     private int seed;
 
     void Start()
@@ -27,21 +28,16 @@ public class HexTilemapGenerator : MonoBehaviour
         {
             for (int x = 0; x < width; x++)
             {
-                // Generate base Perlin noise
-                float noiseValue = Mathf.PerlinNoise((x + seed) * noiseScale, (y + seed) * noiseScale);
-
-                // Introduce slight warping for better clustering
-                float warpX = Mathf.PerlinNoise((x + seed + 100) * 0.05f, (y + seed) * 0.05f) * 2 - 1;
-                float warpY = Mathf.PerlinNoise((x + seed) * 0.05f, (y + seed + 100) * 0.05f) * 2 - 1;
-                float warpedNoise = Mathf.PerlinNoise((x + warpX + seed) * noiseScale, (y + warpY + seed) * noiseScale);
+                float baseNoise = Mathf.PerlinNoise((x + seed) * noiseScale, (y + seed) * noiseScale);
+                float stoneNoise = Mathf.PerlinNoise((x + seed + 500) * stoneNoiseScale, (y + seed + 500) * stoneNoiseScale);
 
                 Vector3Int tilePosition = new Vector3Int(x, -y, 0);
 
-                if (warpedNoise > waterThreshold)
+                if (baseNoise > waterThreshold)
                 {
                     tilemap.SetTile(tilePosition, waterTile);
                 }
-                else if (warpedNoise > stoneThreshold && Random.value > 0.7f) // More isolated stone
+                else if (stoneNoise > stoneThreshold) // Stone is based on its own clustered noise
                 {
                     tilemap.SetTile(tilePosition, stoneTile);
                 }
