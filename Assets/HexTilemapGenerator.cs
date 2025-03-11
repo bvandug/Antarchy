@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -13,6 +14,7 @@ public class HexTilemapGenerator : MonoBehaviour
     public float waterThreshold = 0.6f;
     public float stoneThreshold = 0.3f;
     private int seed;
+    int population = 1000;
 
     void Start()
     {
@@ -70,28 +72,106 @@ public class HexTilemapGenerator : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            // Raycast from camera to the tilemap plane (assuming Z = 0)
+            // Raycast from camera to the tilemap plane(z=0)
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            Plane tilemapPlane = new Plane(Vector3.forward, Vector3.zero); // Adjust if needed
+            Plane tilemapPlane = new Plane(Vector3.forward, Vector3.zero);
 
             if (tilemapPlane.Raycast(ray, out float distance))
             {
-                Vector3 mousePosWorld = ray.GetPoint(distance); // Get the intersection point
+                Vector3 mousePosWorld = ray.GetPoint(distance); 
                 Vector3Int mouseCell = tilemap.WorldToCell(mousePosWorld);
 
+                int CostToMine = GetMiningCost(mouseCell.y); //give the yposition of the cell
+
                 // Check if there is a tile at the clicked position
-                if (tilemap.HasTile(mouseCell))
+                if (tilemap.HasTile(mouseCell) && CanMineTile(mouseCell))
                 {
-                    Debug.Log($"Mining tile at: {mouseCell} (World Pos: {mousePosWorld})");
-                    tilemap.SetTile(mouseCell, mineTile); // Remove the tile
+                    if(population >= CostToMine)
+                    {
+                        population -= CostToMine;
+  
+                        Debug.Log($"Mining tile at: {mouseCell} (World Pos: {mousePosWorld})");
+                        Debug.Log($"Mining cost {CostToMine}.Your new population is {population}");
+                        tilemap.SetTile(mouseCell, mineTile); // Remove the tile
+                    }
+
+                    else
+                    {
+                        Debug.Log("Not enough ants!!");
+                    }
+  
                 }
                 else
                 {
-                    Debug.Log("No tile to mine at this position.");
+                    Debug.Log("No available to tile to mine at this position.");
                 }
             }
         }
     }
 
+    int GetMiningCost(int y)
+    {
+        int baseCost = 5; 
+        int increasePerStep = 10; 
 
+        return baseCost + ((Mathf.Abs(y) / 10) * increasePerStep);
+    }
+
+    bool CanMineTile(Vector3Int cell)
+    {
+        if (cell.y == 0) return true; // Allow mining at the top row
+
+        Vector3Int[] neighbors = GetHexNeighbors(cell);
+
+        foreach (Vector3Int neighbor in neighbors)
+        {
+            TileBase neighborTile = tilemap.GetTile(neighbor);
+
+            if (neighborTile == mineTile) // Check if adjacent tile is a mined tile
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    Vector3Int[] GetHexNeighbors(Vector3Int cell)
+    {
+        bool isEvenRow = (cell.y % 2 == 0);
+
+        if (isEvenRow)
+        {
+
+            return new Vector3Int[]
+            {
+            new Vector3Int(cell.x - 1, cell.y, 0), // Left
+            new Vector3Int(cell.x + 1, cell.y, 0), // Right
+            new Vector3Int(cell.x - 1, cell.y - 1, 0), // Bottom Left
+            new Vector3Int(cell.x, cell.y - 1, 0), // Bottom Right
+            new Vector3Int(cell.x - 1, cell.y + 1, 0), // Top Left
+            new Vector3Int(cell.x, cell.y + 1, 0) // Top Right
+            }; 
+        }
+        else
+        {
+            return new Vector3Int[]
+            {
+            new Vector3Int(cell.x - 1, cell.y, 0), // Left
+            new Vector3Int(cell.x + 1, cell.y, 0), // Right
+            new Vector3Int(cell.x, cell.y - 1, 0), // Bottom Left
+            new Vector3Int(cell.x + 1, cell.y - 1, 0), // Bottom Right
+            new Vector3Int(cell.x, cell.y + 1, 0), // Top Left
+            new Vector3Int(cell.x + 1, cell.y + 1, 0) // Top Right
+            };
+        }
+    }
+
+   
 }
+
+
+
+
+
