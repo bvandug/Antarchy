@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -7,17 +8,29 @@ public class HexTilemapGenerator : MonoBehaviour
     private int width = 30;
     private int height = 300;
     public Tilemap tilemap;
-    public TileBase dirtTile, waterTile, stoneTile, foodTile, mineTile;
+    public TileBase dirtTile, waterTile, stoneTile, foodTile, minedTile;
 
     public float noiseScale = 0.3f; // Lower for bigger clusters
     public float stoneNoiseScale = 0.15f; // Stone uses separate noise for better clustering
     public float waterThreshold = 0.6f;
     public float stoneThreshold = 0.3f;
     private int seed;
+
+    private Dictionary<TileBase, string> tileNames;
     int population = 1000;
 
     void Start()
     {
+        // Initialize dictionary with tile names
+        tileNames = new Dictionary<TileBase, string>
+        {
+            { dirtTile, "Dirt" },
+            { waterTile, "Water" },
+            { stoneTile, "Stone" },
+            { foodTile, "Food" },
+            { minedTile, "Mined" }
+        };
+
         GenerateMap();
     }
 
@@ -35,8 +48,10 @@ public class HexTilemapGenerator : MonoBehaviour
         {
             for (int x = 0; x < width; x++)
             {
+                //perlin noise for stone and base tile
                 float baseNoise = Mathf.PerlinNoise((x + seed) * noiseScale, (y + seed) * noiseScale);
                 float stoneNoise = Mathf.PerlinNoise((x + seed + 500) * stoneNoiseScale, (y + seed + 500) * stoneNoiseScale);
+
 
                 Vector3Int tilePosition = new Vector3Int(x, -y, 0);
 
@@ -80,6 +95,8 @@ public class HexTilemapGenerator : MonoBehaviour
             {
                 Vector3 mousePosWorld = ray.GetPoint(distance); 
                 Vector3Int mouseCell = tilemap.WorldToCell(mousePosWorld);
+                TileBase clickedTile = tilemap.GetTile(mouseCell);
+                Debug.Log(clickedTile);
 
                 int CostToMine = GetMiningCost(mouseCell.y); //give the yposition of the cell
 
@@ -92,7 +109,7 @@ public class HexTilemapGenerator : MonoBehaviour
   
                         Debug.Log($"Mining tile at: {mouseCell} (World Pos: {mousePosWorld})");
                         Debug.Log($"Mining cost {CostToMine}.Your new population is {population}");
-                        tilemap.SetTile(mouseCell, mineTile); // Remove the tile
+                        tilemap.SetTile(mouseCell, minedTile); // Remove the tile
                     }
 
                     else
@@ -127,7 +144,7 @@ public class HexTilemapGenerator : MonoBehaviour
         {
             TileBase neighborTile = tilemap.GetTile(neighbor);
 
-            if (neighborTile == mineTile) // Check if adjacent tile is a mined tile
+            if (neighborTile == minedTile) // Check if adjacent tile is a mined tile
             {
                 return true;
             }
