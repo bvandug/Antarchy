@@ -181,7 +181,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60.000004
-  orthographic: 0
+  orthographic: 1
   orthographic size: 5
   m_Depth: 0
   m_CullingMask:
@@ -270,7 +270,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 330585545}
-  scrollSpeed: 5
   tileHeight: 1.732
   gridHeight: 50
 --- !u!1 &410087039
@@ -668,16 +667,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 202a91d3e143584409de3f0db70eb089, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 30
-  height: 50
   tilemap: {fileID: 860469937}
   dirtTile: {fileID: 11400000, guid: dc8d0a2ddb517d4469bf870e8d2ed6ee, type: 2}
-  waterTile: {fileID: 11400000, guid: 31a18cc4c64b9aa40a4ea52376f1e8d9, type: 2}
+  waterTile: {fileID: 11400000, guid: 2815ff3a9c7a56c48be5e8caf4aa4792, type: 2}
   stoneTile: {fileID: 11400000, guid: 90491952d2314f745957fb8215d5143e, type: 2}
   foodTile: {fileID: 11400000, guid: 9be21a7fe35a9984a946f16b70a75a85, type: 2}
-  noiseScale: 0.4
+  mineTile: {fileID: 11400000, guid: 7d3cfe1563f45bf499cc4a81a6763cc7, type: 2}
+  noiseScale: 0.6
+  stoneNoiseScale: 0.15
   waterThreshold: 0.8
-  stoneThreshold: 0.55
+  stoneThreshold: 0.6
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
