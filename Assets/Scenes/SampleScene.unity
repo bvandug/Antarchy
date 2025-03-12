@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: c051fe5a20f72814f9643eb10ebbd2fc, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -635,7 +635,7 @@ Grid:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1410751642}
   m_Enabled: 1
-  m_CellSize: {x: 0.86, y: 1, z: 1}
+  m_CellSize: {x: 0.855, y: 1, z: 1}
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 1
   m_CellSwizzle: 0
@@ -670,9 +670,9 @@ MonoBehaviour:
   tilemap: {fileID: 860469937}
   dirtTile: {fileID: 11400000, guid: dc8d0a2ddb517d4469bf870e8d2ed6ee, type: 2}
   waterTile: {fileID: 11400000, guid: 2815ff3a9c7a56c48be5e8caf4aa4792, type: 2}
-  stoneTile: {fileID: 11400000, guid: 90491952d2314f745957fb8215d5143e, type: 2}
+  stoneTile: {fileID: 11400000, guid: 6607ff6ab7bc6d84a8553ca958cde156, type: 2}
   foodTile: {fileID: 11400000, guid: 9be21a7fe35a9984a946f16b70a75a85, type: 2}
-  mineTile: {fileID: 11400000, guid: 7d3cfe1563f45bf499cc4a81a6763cc7, type: 2}
+  minedTile: {fileID: 11400000, guid: cf8a12cf56e0753459449e664f3e5423, type: 2}
   noiseScale: 0.6
   stoneNoiseScale: 0.15
   waterThreshold: 0.8
