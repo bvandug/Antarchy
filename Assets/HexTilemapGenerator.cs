@@ -110,6 +110,7 @@ public class HexTilemapGenerator : MonoBehaviour
                         Debug.Log($"Mining tile at: {mouseCell} (World Pos: {mousePosWorld})");
                         Debug.Log($"Mining cost {CostToMine}.Your new population is {population}");
                         tilemap.SetTile(mouseCell, minedTile); // Remove the tile
+                        FindObjectOfType<AudioManager>().Play("DigTunnel"); // Play digtunnel sound
                     }
 
                     else
