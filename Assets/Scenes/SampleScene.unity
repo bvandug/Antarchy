@@ -469,6 +469,12 @@ MonoBehaviour:
   sounds:
   - name: Theme
     clip: {fileID: 8300000, guid: 2029118ede9ba4ef9bdc5a7fb7d7100b, type: 3}
+    volume: 0.505
+    pitch: 0.89
+    loop: 1
+    source: {fileID: 0}
+  - name: DigTunnel
+    clip: {fileID: 8300000, guid: e1a21bb7113b14e9c8a9660ca4568ae4, type: 3}
     volume: 0.701
     pitch: 0.89
     loop: 1
