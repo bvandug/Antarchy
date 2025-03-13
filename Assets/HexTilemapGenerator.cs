@@ -91,15 +91,6 @@ public class HexTilemapGenerator : MonoBehaviour
                     bool stone = false;
                     if (hexMapData[mouseCell] == stoneTile)
                         stone = true;
-                    if(population >= CostToMine)
-                    {
-                        population -= CostToMine;
-  
-                        Debug.Log($"Mining tile at: {mouseCell} (World Pos: {mousePosWorld})");
-                        Debug.Log($"Mining cost {CostToMine}.Your new population is {population}");
-                        tilemap.SetTile(mouseCell, minedTile); // Remove the tile
-                        FindFirstObjectByType<AudioManager>().Play("DigTunnel"); // Play digtunnel sound
-                    }
 
                     int costToMine = GetMiningCost(mouseCell.y, stone);
 
