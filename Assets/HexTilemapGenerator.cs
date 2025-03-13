@@ -88,20 +88,9 @@ public class HexTilemapGenerator : MonoBehaviour
 
                 if (hexMapData.TryGetValue(mouseCell, out TileBase clickedTile))
                 {
-<<<<<<< Updated upstream
-                    if(population >= CostToMine)
-                    {
-                        population -= CostToMine;
-  
-                        Debug.Log($"Mining tile at: {mouseCell} (World Pos: {mousePosWorld})");
-                        Debug.Log($"Mining cost {CostToMine}.Your new population is {population}");
-                        tilemap.SetTile(mouseCell, minedTile); // Remove the tile
-                    }
-=======
                     bool stone = false;
                     if (hexMapData[mouseCell] == stoneTile)
                         stone = true;
->>>>>>> Stashed changes
 
                     int costToMine = GetMiningCost(mouseCell.y, stone);
 
