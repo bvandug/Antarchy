@@ -19,6 +19,11 @@ public class HexTilemapGenerator : MonoBehaviour
     private Dictionary<TileBase, string> tileNames;
     int population = 1000;
 
+    //This code is to notify AntAI when the first tile has been mined.
+    private bool firstBlockMined = false;
+    private Vector3Int firstMinedBlockPosition;
+    public AntAI antAI; // Reference to your AntAI script
+
     void Start()
     {
         // Initialize dictionary with tile names
@@ -111,7 +116,21 @@ public class HexTilemapGenerator : MonoBehaviour
                         Debug.Log($"Mining cost {CostToMine}.Your new population is {population}");
                         tilemap.SetTile(mouseCell, minedTile); // Remove the tile
                         FindFirstObjectByType<AudioManager>().Play("DigTunnel"); // Play digtunnel sound
+
+                        // Check if this is the first mined block
+                        if (!firstBlockMined)
+                        {
+                            firstBlockMined = true;
+                            firstMinedBlockPosition = mouseCell;
+                            
+                            // Notify AntAI about the first mined block
+                            if (antAI != null)
+                            {
+                                antAI.OnFirstBlockMined(mouseCell);
+                            }
+                        }
                     }
+
 
                     else
                     {
