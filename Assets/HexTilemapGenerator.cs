@@ -22,7 +22,9 @@ public class HexTilemapGenerator : MonoBehaviour
 
     void Start()
     {
-        GenerateMap();
+        seed = Random.Range(0, 10000);
+        GenerateMap(seed);
+
     }
 
     private void Update()
@@ -30,9 +32,8 @@ public class HexTilemapGenerator : MonoBehaviour
         MineBlock();
     }
 
-    void GenerateMap()
+    void GenerateMap(int seed)
     {
-        seed = Random.Range(0, 10000);
         tilemap.ClearAllTiles();
         hexMapData.Clear(); // Reset the dictionary
 
@@ -202,6 +203,11 @@ public class HexTilemapGenerator : MonoBehaviour
             new Vector3Int(cell.x + 1, cell.y + 1, 0) // Top Right
             };
         }
+    }
+
+    void ResourceGeneration()
+    {
+
     }
 
    
