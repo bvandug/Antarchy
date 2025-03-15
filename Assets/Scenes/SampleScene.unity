@@ -477,7 +477,7 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: e1a21bb7113b14e9c8a9660ca4568ae4, type: 3}
     volume: 0.701
     pitch: 0.89
-    loop: 1
+    loop: 0
     source: {fileID: 0}
 --- !u!4 &738352157
 Transform:
@@ -778,6 +778,58 @@ MonoBehaviour:
   stoneNoiseScale: 0.15
   waterThreshold: 0.8
   stoneThreshold: 0.6
+  antAI: {fileID: 1815529654}
+--- !u!1 &1815529653
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1815529655}
+  - component: {fileID: 1815529654}
+  m_Layer: 0
+  m_Name: AntAI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1815529654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1815529653}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6904dcf7e170b44fbb3c205133eecd6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  antSpritePrefab: {fileID: 5072348331939863145, guid: 4055cf1e9a5044712a8c3816cc7c7e7a, type: 3}
+  antCount: 10
+  moveSpeed: 2
+  pathPlanningInterval: 0.5
+  pathPlanningVariation: 0.3
+  turnSmoothness: 0.5
+  maxPathLength: 3
+--- !u!4 &1815529655
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1815529653}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.01, y: 0.01, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -788,3 +840,4 @@ SceneRoots:
   - {fileID: 1410751644}
   - {fileID: 738352157}
   - {fileID: 39465730}
+  - {fileID: 1815529655}

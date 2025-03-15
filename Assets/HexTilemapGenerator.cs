@@ -112,6 +112,18 @@ public class HexTilemapGenerator : MonoBehaviour
                             tilemap.SetTile(mouseCell, minedTile); // Set mined tile
                             hexMapData[mouseCell] = minedTile; // Update dictionary
                             FindFirstObjectByType<AudioManager>().Play("DigTunnel");
+
+                            if (!firstBlockMined)
+                            {
+                                firstBlockMined = true;
+                                firstMinedBlockPosition = mouseCell;
+                                
+                                // Notify AntAI about the first mined block
+                                if (antAI != null)
+                                {
+                                    antAI.OnFirstBlockMined(mouseCell);
+                                }
+                            }
                         }
                         else
                         {
@@ -179,7 +191,7 @@ public class HexTilemapGenerator : MonoBehaviour
 
 
     //this just returns number coords not actual tiles
-    Vector3Int[] GetHexNeighbors(Vector3Int cell) 
+    public Vector3Int[] GetHexNeighbors(Vector3Int cell) 
     {
         bool isEvenRow = (cell.y % 2 == 0);
 
@@ -208,6 +220,16 @@ public class HexTilemapGenerator : MonoBehaviour
             new Vector3Int(cell.x + 1, cell.y + 1, 0) // Top Right
             };
         }
+    }
+
+    // This method checks whether a tile has been mined or not
+    public bool IsTileMined(Vector3Int cell)
+    {
+        if (hexMapData.TryGetValue(cell, out TileBase tile))
+        {
+            return tile == minedTile;
+        }
+        return false;
     }
 
     void ResourceGeneration()
