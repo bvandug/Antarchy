@@ -20,6 +20,11 @@ public class HexTilemapGenerator : MonoBehaviour
 
     int population = 1000;
 
+    //This code is to notify AntAI when the first tile has been mined.
+    private bool firstBlockMined = false;
+    private Vector3Int firstMinedBlockPosition;
+    public AntAI antAI; // Reference to your AntAI script
+
     void Start()
     {
         seed = Random.Range(0, 10000);
