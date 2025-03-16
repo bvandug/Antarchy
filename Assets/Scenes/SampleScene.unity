@@ -814,7 +814,7 @@ MonoBehaviour:
   pathPlanningInterval: 0.5
   pathPlanningVariation: 0.3
   turnSmoothness: 0.5
-  maxPathLength: 3
+  maxPathLength: 10
 --- !u!4 &1815529655
 Transform:
   m_ObjectHideFlags: 0
