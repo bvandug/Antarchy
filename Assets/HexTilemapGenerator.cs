@@ -1,5 +1,5 @@
+using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -16,9 +16,14 @@ public class HexTilemapGenerator : MonoBehaviour
     public float stoneThreshold = 0.3f;
     private int seed;
 
-    private Dictionary<Vector3Int, TileBase> hexMapData = new Dictionary<Vector3Int, TileBase>();
+    private Dictionary<Vector3Int, HexTileData> hexMapData = new Dictionary<Vector3Int, HexTileData>();
 
-    int population = 1000;
+
+    private int population = 1000;
+    private int foodGenerator = 0;
+    private int food = 0;
+    private int waterGenerator =0;
+    private int water = 0;
 
     //This code is to notify AntAI when the first tile has been mined.
     private bool firstBlockMined = false;
@@ -29,6 +34,7 @@ public class HexTilemapGenerator : MonoBehaviour
     {
         seed = Random.Range(0, 10000);
         GenerateMap(seed);
+        StartCoroutine(GenerateResources());
 
     }
 
@@ -60,7 +66,7 @@ public class HexTilemapGenerator : MonoBehaviour
                     selectedTile = dirtTile;
 
                 tilemap.SetTile(tilePosition, selectedTile);
-                hexMapData[tilePosition] = selectedTile; // Store in dictionary
+                hexMapData[tilePosition] = new HexTileData(selectedTile);
             }
         }
 
@@ -75,7 +81,7 @@ public class HexTilemapGenerator : MonoBehaviour
             int randomX = Random.Range(0, width);
             Vector3Int tilePosition = new Vector3Int(randomX, -y, 0);
             tilemap.SetTile(tilePosition, foodTile);
-            hexMapData[tilePosition] = foodTile;
+            hexMapData[tilePosition].Tile = foodTile;
        
         }
     }
@@ -92,10 +98,10 @@ public class HexTilemapGenerator : MonoBehaviour
                 Vector3 mousePosWorld = ray.GetPoint(distance);
                 Vector3Int mouseCell = tilemap.WorldToCell(mousePosWorld);
 
-                if (hexMapData.TryGetValue(mouseCell, out TileBase clickedTile))
+                if (hexMapData.TryGetValue(mouseCell, out HexTileData tileData))
                 {
                     bool stone = false;
-                    if (hexMapData[mouseCell] == stoneTile)
+                    if (hexMapData[mouseCell].Tile == stoneTile)
                         stone = true;
 
                     int costToMine = GetMiningCost(mouseCell.y, stone);
@@ -110,7 +116,8 @@ public class HexTilemapGenerator : MonoBehaviour
                             Debug.Log($"Mining cost {costToMine}. Your new population is {population}");
 
                             tilemap.SetTile(mouseCell, minedTile); // Set mined tile
-                            hexMapData[mouseCell] = minedTile; // Update dictionary
+                            hexMapData[mouseCell].Tile = minedTile; // Update dictionary
+                            CheckResourceTile(mouseCell);
                             FindFirstObjectByType<AudioManager>().Play("DigTunnel");
 
                             if (!firstBlockMined)
@@ -155,10 +162,10 @@ public class HexTilemapGenerator : MonoBehaviour
 
     bool CanMineTile(Vector3Int cell)
     {
-        if (!hexMapData.TryGetValue(cell, out TileBase targetTile))
+        if (!hexMapData.TryGetValue(cell, out HexTileData tileData ))
             return false; // No tile present
 
-        if (hexMapData[cell] != stoneTile && hexMapData[cell] != dirtTile)
+        if (hexMapData[cell].Tile != stoneTile && hexMapData[cell].Tile != dirtTile)
         {
             Debug.Log("not stone or dirt tile cannot mine");
             return false;
@@ -167,7 +174,7 @@ public class HexTilemapGenerator : MonoBehaviour
 
             if (cell.y == 0)
         {
-            if (targetTile != dirtTile && targetTile != stoneTile)
+            if (tileData.Tile != dirtTile && tileData.Tile != stoneTile)
                 return false;
             return true;
         }
@@ -177,9 +184,9 @@ public class HexTilemapGenerator : MonoBehaviour
 
         foreach (Vector3Int neighbor in neighbors)
         {
-            if (hexMapData.TryGetValue(neighbor, out TileBase neighborTile))
+            if (hexMapData.TryGetValue(neighbor, out HexTileData tileData1))
             {
-                if (neighborTile == minedTile) // Ensure at least one adjacent mined tile
+                if (tileData1.Tile == minedTile) // Ensure at least one adjacent mined tile
                 {
                     return true;
                 }
@@ -225,19 +232,67 @@ public class HexTilemapGenerator : MonoBehaviour
     // This method checks whether a tile has been mined or not
     public bool IsTileMined(Vector3Int cell)
     {
-        if (hexMapData.TryGetValue(cell, out TileBase tile))
+        if (hexMapData.TryGetValue(cell, out HexTileData tileData))
         {
-            return tile == minedTile;
+            return tileData.Tile == minedTile;
         }
         return false;
     }
 
-    void ResourceGeneration()
+    //find and store the amount of resource generators
+    private void CheckResourceTile(Vector3Int cell)
     {
+        Vector3Int[] neighbors = GetHexNeighbors(cell);
 
+        foreach (Vector3Int neighbor in neighbors)
+        {
+            if (hexMapData.TryGetValue(neighbor, out HexTileData neighborTile))
+            {
+                if(neighborTile.Tile == waterTile)
+                {
+                    if (!neighborTile.IsActivated)
+                    {
+                        neighborTile.IsActivated = true;
+                        waterGenerator += 1;
+                        Debug.Log($"Water Generators amount increased to:{waterGenerator}");
+                    }
+                }
+
+                if(neighborTile.Tile == foodTile)
+                {
+                    if (!neighborTile.IsActivated)
+                    {
+                        neighborTile.IsActivated = true;
+                        foodGenerator += 1;
+                        Debug.Log($"Food Generators amount increased to {foodGenerator}");
+                    }
+                }
+            }
+        }
     }
 
-   
+    private IEnumerator GenerateResources()
+    {
+        while (true) // Runs indefinitely
+        {
+            if (waterGenerator > 0)
+            {
+                water += waterGenerator;
+            }
+
+            if (foodGenerator > 0)
+            {
+                food += foodGenerator;   
+            }
+
+            Debug.Log($"food: {food}, water {water}");
+
+            yield return new WaitForSeconds(1f);
+        }
+    }
+
+
+
 }
 
 
