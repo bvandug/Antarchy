@@ -39,6 +39,6 @@ public class HexCameraController : MonoBehaviour
     void CenterCamera()
     {
         // Centers the camera at the top of the grid
-        cam.transform.position = new Vector3(13, minY, -15);
+        cam.transform.position = new Vector3(15, minY, -15);
     }
 }

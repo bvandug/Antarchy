@@ -18,12 +18,12 @@ public class HexTilemapGenerator : MonoBehaviour
 
     private Dictionary<Vector3Int, HexTileData> hexMapData = new Dictionary<Vector3Int, HexTileData>();
 
-
     private int population = 1000;
-    private int foodGenerator = 0;
-    private int food = 0;
-    private int waterGenerator =0;
-    private int water = 0;
+    private float food = 0;
+    private float water = 0;
+
+    private int waterGenerator = 0;
+    private int foodGenerator =0;
 
     //This code is to notify AntAI when the first tile has been mined.
     private bool firstBlockMined = false;
@@ -34,13 +34,40 @@ public class HexTilemapGenerator : MonoBehaviour
     {
         seed = Random.Range(0, 10000);
         GenerateMap(seed);
-        StartCoroutine(GenerateResources());
+        StartCoroutine(FillGenerators());
 
     }
 
     private void Update()
     {
-        MineBlock();
+       CheckInput();
+    }
+
+    void CheckInput()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Plane tilemapPlane = new Plane(Vector3.forward, Vector3.zero);
+
+            if (tilemapPlane.Raycast(ray, out float distance))
+            {
+                Vector3 mousePosWorld = ray.GetPoint(distance);
+                Vector3Int mouseCell = tilemap.WorldToCell(mousePosWorld);
+                if (hexMapData.TryGetValue(mouseCell, out HexTileData tileData))
+                {
+                    if (hexMapData[mouseCell].Tile == foodTile || hexMapData[mouseCell].Tile == waterTile)
+                    {
+                        CollectResource(mouseCell);
+                    }
+                    else
+                    {
+                        MineBlock(mouseCell);
+                    }
+
+                }
+            }
+        }
     }
 
     void GenerateMap(int seed)
@@ -86,78 +113,52 @@ public class HexTilemapGenerator : MonoBehaviour
         }
     }
 
-    void MineBlock()
+    void MineBlock(Vector3Int mouseCell)
     {
-        if (Input.GetMouseButtonDown(0))
+        
+        int costToMine = GetMiningCost(mouseCell);
+
+        if (tilemap.HasTile(mouseCell) && CanMineTile(mouseCell))
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            Plane tilemapPlane = new Plane(Vector3.forward, Vector3.zero);
-
-            if (tilemapPlane.Raycast(ray, out float distance))
+            if (population >= costToMine)
             {
-                Vector3 mousePosWorld = ray.GetPoint(distance);
-                Vector3Int mouseCell = tilemap.WorldToCell(mousePosWorld);
+                population -= costToMine;
+                Debug.Log($"Mining cost {costToMine}. Your new population is {population}");
 
-                if (hexMapData.TryGetValue(mouseCell, out HexTileData tileData))
+                tilemap.SetTile(mouseCell, minedTile); // Set mined tile
+                hexMapData[mouseCell].Tile = minedTile; // Update dictionary
+                CheckResourceTile(mouseCell);
+                FindFirstObjectByType<AudioManager>().Play("DigTunnel");
+
+                if (!firstBlockMined)
                 {
-                    bool stone = false;
-                    if (hexMapData[mouseCell].Tile == stoneTile)
-                        stone = true;
+                    firstBlockMined = true;
+                    firstMinedBlockPosition = mouseCell;
 
-                    int costToMine = GetMiningCost(mouseCell.y, stone);
-
-                    if (tilemap.HasTile(mouseCell) && CanMineTile(mouseCell))
+                    // Notify AntAI about the first mined block
+                    if (antAI != null)
                     {
-                        if (population >= costToMine)
-                        {
-                            population -= costToMine;
-
-                            Debug.Log($"Mining tile at: {mouseCell} (World Pos: {mousePosWorld})");
-                            Debug.Log($"Mining cost {costToMine}. Your new population is {population}");
-
-                            tilemap.SetTile(mouseCell, minedTile); // Set mined tile
-                            hexMapData[mouseCell].Tile = minedTile; // Update dictionary
-                            CheckResourceTile(mouseCell);
-                            FindFirstObjectByType<AudioManager>().Play("DigTunnel");
-
-                            if (!firstBlockMined)
-                            {
-                                firstBlockMined = true;
-                                firstMinedBlockPosition = mouseCell;
-                                
-                                // Notify AntAI about the first mined block
-                                if (antAI != null)
-                                {
-                                    antAI.OnFirstBlockMined(mouseCell);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Debug.Log("Not enough ants!!");
-                        }
-                    }
-                    else
-                    {
-                        Debug.Log("No available tile to mine at this position.");
+                        antAI.OnFirstBlockMined(mouseCell);
                     }
                 }
             }
         }
     }
+      
+    
 
 
-    int GetMiningCost(int y, bool stone)
-    {
+    int GetMiningCost(Vector3Int mouseCell) 
+    { 
         int baseCost = 5; 
         int increasePerStep = 10;
 
-        if (stone)
+        if (hexMapData[mouseCell].Tile == stoneTile)
         {
-            return 10*(baseCost + ((Mathf.Abs(y) / 10) * increasePerStep));
+            return 10*(baseCost + ((Mathf.Abs(mouseCell.y) / 10) * increasePerStep));
         }
 
-            return baseCost + ((Mathf.Abs(y) / 10) * increasePerStep);
+            return baseCost + ((Mathf.Abs(mouseCell.y) / 10) * increasePerStep);
     }
 
     bool CanMineTile(Vector3Int cell)
@@ -239,7 +240,7 @@ public class HexTilemapGenerator : MonoBehaviour
         return false;
     }
 
-    //find and store the amount of resource generators
+    //check and activate resource tiles
     private void CheckResourceTile(Vector3Int cell)
     {
         Vector3Int[] neighbors = GetHexNeighbors(cell);
@@ -271,25 +272,63 @@ public class HexTilemapGenerator : MonoBehaviour
         }
     }
 
-    private IEnumerator GenerateResources()
+    private IEnumerator FillGenerators()
     {
-        while (true) // Runs indefinitely
+        while (true)
         {
-            if (waterGenerator > 0)
+            foreach (var kvp in hexMapData)
             {
-                water += waterGenerator;
+                HexTileData tileData = kvp.Value;
+
+                if (tileData.Tile == waterTile && tileData.IsActivated)
+                {
+                    if (tileData.FillLevel < tileData.MaxFill)
+                    {
+                        tileData.FillLevel += 1f; // Increase fill level
+                        Debug.Log($"Filling Water at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
+                    }
+                }
+                if (tileData.Tile == foodTile && tileData.IsActivated)
+                {
+                    if (tileData.FillLevel < tileData.MaxFill)
+                    {
+                        tileData.FillLevel += 5f; // Increase fill level
+                        Debug.Log($"Filling Food at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
+                    }
+                }
             }
-
-            if (foodGenerator > 0)
-            {
-                food += foodGenerator;   
-            }
-
-            Debug.Log($"food: {food}, water {water}");
-
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(1f); // Adjust fill speed
         }
     }
+
+    public void CollectResource(Vector3Int cell)
+    {
+        if (hexMapData.TryGetValue(cell, out var tileData)) 
+        {
+            if (tileData.Tile == waterTile)
+            {
+                water += tileData.FillLevel;
+                Debug.Log($"Collected {tileData.FillLevel} water from tile {cell}, water = {water} ");
+                tileData.FillLevel = 0;
+                
+            }
+
+            if (tileData.Tile == foodTile)
+            {
+                food += tileData.FillLevel;
+                Debug.Log($"Collected {tileData.FillLevel} food from tile {cell}, food= {food} ");
+                tileData.FillLevel = 0;
+            }
+        }
+    }
+
+
+
+
+
+
+
+
 
 
 
