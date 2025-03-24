@@ -4978,6 +4978,7 @@ MonoBehaviour:
   stoneTile: {fileID: 11400000, guid: 6607ff6ab7bc6d84a8553ca958cde156, type: 2}
   foodTile: {fileID: 11400000, guid: 9be21a7fe35a9984a946f16b70a75a85, type: 2}
   minedTile: {fileID: 11400000, guid: cf8a12cf56e0753459449e664f3e5423, type: 2}
+  spawnTile: {fileID: 11400000, guid: 82af4f82344befd4c851b21ce148ca3d, type: 2}
   noiseScale: 0.6
   stoneNoiseScale: 0.15
   waterThreshold: 0.8

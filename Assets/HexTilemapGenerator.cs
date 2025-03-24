@@ -10,7 +10,7 @@ public class HexTilemapGenerator : MonoBehaviour
     private int width = 30;
     private int height = 300;
     public Tilemap tilemap;
-    public TileBase dirtTile, waterTile, stoneTile, foodTile, minedTile;
+    public TileBase dirtTile, waterTile, stoneTile, foodTile, minedTile, spawnTile;
 
     public float noiseScale = 0.3f; // Lower for bigger clusters
     public float stoneNoiseScale = 0.15f; // Stone uses separate noise for better clustering
@@ -25,12 +25,13 @@ public class HexTilemapGenerator : MonoBehaviour
 
     private Dictionary<Vector3Int, HexTileData> hexMapData = new Dictionary<Vector3Int, HexTileData>();
 
-    public int population = 1000;
-    private float food = 100;
-    private float water = 200;
+    private float population = 1000;
+    private float food = 0;
+    private float water = 0;
 
     private int waterGenerator = 0;
     private int foodGenerator =0;
+    private int SpawnGenerator = 0;
 
     //This code is to notify AntAI when the first tile has been mined.
     private bool firstBlockMined = false;
@@ -78,7 +79,7 @@ public class HexTilemapGenerator : MonoBehaviour
                 Vector3Int mouseCell = tilemap.WorldToCell(mousePosWorld);
                 if (hexMapData.TryGetValue(mouseCell, out HexTileData tileData))
                 {
-                    if (hexMapData[mouseCell].Tile == foodTile || hexMapData[mouseCell].Tile == waterTile)
+                    if (hexMapData[mouseCell].Tile == foodTile || hexMapData[mouseCell].Tile == waterTile|| hexMapData[mouseCell].Tile == spawnTile)
                     {
                         CollectResource(mouseCell);
                     }
@@ -120,18 +121,52 @@ public class HexTilemapGenerator : MonoBehaviour
         }
 
         EnsureFoodPlacement();
+        EnsureSpawnPlacement();
     }
 
 
     void EnsureFoodPlacement()
     {
-        for (int y = 0; y < height; y += 5)
+        for (int y = 5; y < height; y += 10)
         {
             int randomX = Random.Range(0, width);
-            Vector3Int tilePosition = new Vector3Int(randomX, -y, 0);
+            int randomYOffset = Random.Range(-3, 3);
+            Vector3Int tilePosition = new Vector3Int(randomX, -(y + randomYOffset), 0);
             tilemap.SetTile(tilePosition, foodTile);
             hexMapData[tilePosition].Tile = foodTile;
-       
+
+        }
+    }
+
+    void EnsureSpawnPlacement()
+    {
+        //ensure spawn with ant nest on row 2 with surronding stone
+        int randomStartX = Random.Range(0, width);
+        Vector3Int TilePosStart = new Vector3Int(randomStartX, -1, 0);
+        tilemap.SetTile(TilePosStart, spawnTile);
+        hexMapData[TilePosStart].Tile = spawnTile;
+        //make surrounding tiles-> dirt
+        Vector3Int[] neighbors = GetHexNeighbors(TilePosStart);
+        foreach (Vector3Int neighbor in neighbors)
+        {
+            if (hexMapData.TryGetValue(neighbor, out HexTileData tileData1))
+            {
+                if (tileData1.Tile != dirtTile) // Ensure at least one adjacent mined tile
+                {
+                    tilemap.SetTile(neighbor, dirtTile);
+                    hexMapData[neighbor].Tile = dirtTile;
+                }
+            }
+        }
+
+        for (int y = 10; y < height; y += 15)
+        {
+            int randomX = Random.Range(0, width);
+            int randomYOffset = Random.Range(-3, 3);
+            Vector3Int tilePosition = new Vector3Int(randomX, -(y + randomYOffset), 0);
+            tilemap.SetTile(tilePosition, spawnTile);
+            hexMapData[tilePosition].Tile = spawnTile;
+
         }
     }
 
@@ -291,6 +326,16 @@ public class HexTilemapGenerator : MonoBehaviour
                         Debug.Log($"Food Generators amount increased to {foodGenerator}");
                     }
                 }
+
+                if (neighborTile.Tile == spawnTile)
+                {
+                    if (!neighborTile.IsActivated)
+                    {
+                        neighborTile.IsActivated = true;
+                        SpawnGenerator += 1;
+                        Debug.Log($"Spawn Generators amount increased to {SpawnGenerator}");
+                    }
+                }
             }
         }
     }
@@ -334,6 +379,14 @@ public class HexTilemapGenerator : MonoBehaviour
                         Debug.Log($"Filling Food at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
                     }
                 }
+                if (tileData.Tile == spawnTile && tileData.IsActivated)
+                {
+                    if (tileData.FillLevel < tileData.MaxFill)
+                    {
+                        tileData.FillLevel += 2f; // Increase fill level
+                        Debug.Log($"Spawning ants at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
+                    }
+                }
             }
             yield return new WaitForSeconds(1f); // Adjust fill speed
         }
@@ -358,6 +411,13 @@ public class HexTilemapGenerator : MonoBehaviour
                 Debug.Log($"Collected {tileData.FillLevel} food from tile {cell}, food= {food} ");
                 tileData.FillLevel = 0;
                 tilemap.SetColor(cell, Color.white);
+            }
+
+            if (tileData.Tile == spawnTile)
+            {
+                population += tileData.FillLevel;
+                Debug.Log($"Spawned {tileData.FillLevel} ants from tile {cell}, food= {food} ");
+                tileData.FillLevel = 0;
             }
         }
     }
