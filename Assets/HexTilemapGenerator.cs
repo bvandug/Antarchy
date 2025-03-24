@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
+using UnityEngine.UIElements;
 
 public class HexTilemapGenerator : MonoBehaviour
 {
@@ -15,12 +17,17 @@ public class HexTilemapGenerator : MonoBehaviour
     public float waterThreshold = 0.6f;
     public float stoneThreshold = 0.3f;
     private int seed;
+    private int minedBlockCount =0;
+    public ProgressBar foodProgressBar;
+    public ProgressBar waterProgressBar;
+    public ProgressBar populationProgressBar;
+    public ProgressBar satisfactionProgressBar;
 
     private Dictionary<Vector3Int, HexTileData> hexMapData = new Dictionary<Vector3Int, HexTileData>();
 
     private int population = 1000;
-    private float food = 0;
-    private float water = 0;
+    private float food = 100;
+    private float water = 200;
 
     private int waterGenerator = 0;
     private int foodGenerator =0;
@@ -30,11 +37,26 @@ public class HexTilemapGenerator : MonoBehaviour
     private Vector3Int firstMinedBlockPosition;
     public AntAI antAI; // Reference to your AntAI script
 
+    private float minAntsPerBlock = 5f;
+    private float maxAntsPerBlock = 10f;
+
+    float spaceRatio=100;
+    float foodRatio=100;
+    float waterRatio=100;
+    float satisfactionRatio = 100;
+
+    public GameObject gameOverPanel;
+    private bool gameOverTriggered = false;
+    
+
     void Start()
     {
+        gameOverPanel.SetActive(false);
         seed = Random.Range(0, 10000);
         GenerateMap(seed);
         StartCoroutine(FillGenerators());
+        StartCoroutine(UpdateResourcesCoroutine());
+        
 
     }
 
@@ -127,6 +149,7 @@ public class HexTilemapGenerator : MonoBehaviour
 
                 tilemap.SetTile(mouseCell, minedTile); // Set mined tile
                 hexMapData[mouseCell].Tile = minedTile; // Update dictionary
+                minedBlockCount++;
                 CheckResourceTile(mouseCell);
                 FindFirstObjectByType<AudioManager>().Play("DigTunnel");
 
@@ -279,12 +302,16 @@ public class HexTilemapGenerator : MonoBehaviour
             foreach (var kvp in hexMapData)
             {
                 HexTileData tileData = kvp.Value;
+                Vector3Int tilePos = kvp.Key;
 
                 if (tileData.Tile == waterTile && tileData.IsActivated)
                 {
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
                         tileData.FillLevel += 1f; // Increase fill level
+                        float fillRatio = tileData.FillLevel / tileData.MaxFill;
+                        Color newColor = Color.Lerp(Color.white, Color.blue, fillRatio);
+                        tilemap.SetColor(tilePos, newColor);
                         Debug.Log($"Filling Water at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
                     }
                 }
@@ -293,6 +320,9 @@ public class HexTilemapGenerator : MonoBehaviour
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
                         tileData.FillLevel += 5f; // Increase fill level
+                        float fillRatio = tileData.FillLevel / tileData.MaxFill;
+                        Color newColor = Color.Lerp(Color.white, new Color(0.5f, 0, 0.5f), fillRatio); // Purple
+                        tilemap.SetColor(tilePos, newColor);
                         Debug.Log($"Filling Food at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
                     }
                 }
@@ -310,6 +340,7 @@ public class HexTilemapGenerator : MonoBehaviour
                 water += tileData.FillLevel;
                 Debug.Log($"Collected {tileData.FillLevel} water from tile {cell}, water = {water} ");
                 tileData.FillLevel = 0;
+                tilemap.SetColor(cell, Color.white);
                 
             }
 
@@ -318,9 +349,111 @@ public class HexTilemapGenerator : MonoBehaviour
                 food += tileData.FillLevel;
                 Debug.Log($"Collected {tileData.FillLevel} food from tile {cell}, food= {food} ");
                 tileData.FillLevel = 0;
+                tilemap.SetColor(cell, Color.white);
             }
         }
     }
+
+    private IEnumerator UpdateResourcesCoroutine(){
+        while (true){
+            UpdateProgressBars();
+            yield return new WaitForSeconds(1f);
+        }
+    }
+
+    public void UpdateProgressBars(){
+
+        
+        UpdateResourceBar();
+        UpdatePopulationBar();
+        UpdateSatisfaction();
+
+    
+        
+
+    
+    }
+
+    public void UpdateResourceBar(){
+
+        float totalFoodNeeded = (1f/6f)*antAI.antCount*60;  
+        float totalWaterNeeded = (1f/3f)*antAI.antCount*60;
+        
+        if (food > 0){
+            food -= (1f/6f)*antAI.antCount;}
+        if (water >0){
+            water -= (1f/3f)*antAI.antCount;}
+
+        foodRatio = Mathf.Clamp01(food/ totalFoodNeeded )*100;
+        waterRatio = Mathf.Clamp01(water/ totalWaterNeeded)*100;
+        
+        
+
+        // Set the ProgressBar maximum to 100 for percentage display
+        foodProgressBar.maximum = 100;
+        waterProgressBar.maximum = 100;
+        
+
+        foodProgressBar.SetProgress((int)(foodRatio ));
+        waterProgressBar.SetProgress((int)(waterRatio ));
+
+    }
+
+    
+
+
+    public void UpdatePopulationBar(){
+        populationProgressBar.maximum = 100;
+        
+        if (minedBlockCount == 0)
+    {
+        spaceRatio = 100;
+        populationProgressBar.SetProgress(100); // Avoid divide-by-zero, no space yet
+        return;
+    }
+
+        float avgAntsPerBlock = (float)antAI.antCount / minedBlockCount;
+            if (avgAntsPerBlock <= minAntsPerBlock){
+                spaceRatio = 100;
+                populationProgressBar.SetProgress(100);  // Full space
+    }
+            else if (avgAntsPerBlock >= maxAntsPerBlock)
+    {
+                spaceRatio = 0;
+                populationProgressBar.SetProgress(0); // No space
+    }
+             else{
+                float overuseRatio = (avgAntsPerBlock - minAntsPerBlock) / (maxAntsPerBlock - minAntsPerBlock);
+                spaceRatio = Mathf.Clamp01(1f - overuseRatio) * 100f;
+                populationProgressBar.SetProgress((int)spaceRatio);
+                }
+
+    }
+
+    public void UpdateSatisfaction(){
+
+        satisfactionRatio = (spaceRatio + foodRatio + waterRatio)/3;
+        satisfactionProgressBar.maximum=100;
+        satisfactionProgressBar.SetProgress((int)satisfactionRatio);
+
+        if (satisfactionRatio < 40 && !gameOverTriggered){
+
+            gameOverTriggered = true;
+            gameOverPanel.SetActive(true);
+            Time.timeScale = 0f;
+            Debug.Log("Game Over: Satisfaction too low!");
+
+
+        }
+
+    }
+
+    
+
+
+
+
+
 
 
 

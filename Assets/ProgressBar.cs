@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 [ExecuteInEditMode()]
 
-public class WaterBar : MonoBehaviour
+public class ProgressBar : MonoBehaviour
 {
 
     public int maximum;
@@ -18,6 +18,9 @@ public class WaterBar : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        current = maximum;
+        GetCurrentFill();
+
         
     }
 
@@ -38,5 +41,9 @@ public class WaterBar : MonoBehaviour
         if (fillImage != null){
             fillImage.color = (fillAmount <= lowThreshold ? lowColor : normalColor);
         }
+    }
+
+    public void SetProgress(int value){
+        current = Mathf.Clamp(value, minimum, maximum);
     }
 }
