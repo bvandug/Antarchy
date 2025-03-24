@@ -9,10 +9,19 @@ public class Timer : MonoBehaviour
     [SerializeField] Color normalColor = Color.white;
     [SerializeField] Color warningColor = Color.red;
     float elapsedTime;
-    float levelTime = 300;
+    float levelTime = 20;
     float remainingTime;
     public GameObject timeUpPanel;
     private bool isPaused = false;
+
+    //Here is the AttackManager
+    private AttackManager attackManager;
+
+    // This runs at game start
+    void Start()
+    {
+        attackManager = FindFirstObjectByType<AttackManager>(); 
+    }
 
     // Update is called once per frame
     void Update()
@@ -23,6 +32,10 @@ public class Timer : MonoBehaviour
 
         if (remainingTime <= 0){
             remainingTime = 0;
+            // Call AttackManager populationKilled method 
+            // This decreases population and triggers attack
+            attackManager.populationKilled();
+
             ShowTimeUpPanel();
         }
 

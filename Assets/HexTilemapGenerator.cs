@@ -25,7 +25,7 @@ public class HexTilemapGenerator : MonoBehaviour
 
     private Dictionary<Vector3Int, HexTileData> hexMapData = new Dictionary<Vector3Int, HexTileData>();
 
-    private int population = 1000;
+    public int population = 1000;
     private float food = 100;
     private float water = 200;
 
@@ -35,7 +35,7 @@ public class HexTilemapGenerator : MonoBehaviour
     //This code is to notify AntAI when the first tile has been mined.
     private bool firstBlockMined = false;
     private Vector3Int firstMinedBlockPosition;
-    public AntAI antAI; // Reference to your AntAI script
+    public AntAI antAI; // Reference to AntAI script
 
     private float minAntsPerBlock = 5f;
     private float maxAntsPerBlock = 10f;
