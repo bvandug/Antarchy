@@ -5,7 +5,7 @@ public class HexCameraController : MonoBehaviour
     public Camera cam;
     private float scrollSpeed = 10f;   // Speed of vertical scrolling
     public float tileHeight = 1.732f; // Approximate height of a hex tile
-    public int gridHeight = 50;      // Number of hex rows
+    public int gridHeight = 300;      // Number of hex rows
 
     private float minY;
     private float maxY;
@@ -18,7 +18,7 @@ public class HexCameraController : MonoBehaviour
         }
 
         minY = 0f;  // Start at the top of the grid
-        maxY = -gridHeight * tileHeight; // Move downward instead of upward
+        maxY = -(gridHeight+5) * tileHeight; // Move downward instead of upward
 
         CenterCamera();
     }
