@@ -11,15 +11,19 @@ public class Timer : MonoBehaviour
     float elapsedTime;
     float levelTime = 300;
     float remainingTime;
+    public GameObject timeUpPanel;
+    private bool isPaused = false;
 
     // Update is called once per frame
     void Update()
     {
+        if (isPaused) return;
         elapsedTime  += Time.deltaTime;
         remainingTime = levelTime - elapsedTime; 
 
         if (remainingTime <= 0){
-            ResetTimer();
+            remainingTime = 0;
+            ShowTimeUpPanel();
         }
 
         int minutes = Mathf.FloorToInt(remainingTime / 60);
@@ -34,4 +38,19 @@ public class Timer : MonoBehaviour
         elapsedTime = 0;
         remainingTime = levelTime;
     }
+    private void ShowTimeUpPanel(){
+        isPaused = true;
+        timeUpPanel.SetActive(true);
+        Time.timeScale = 0f;
+
+    }
+
+    public void OnTimeUpPanelOk(){
+        ResetTimer();
+        isPaused = false;
+        timeUpPanel.SetActive(false);
+        Time.timeScale = 1f; // Resume if you paused it
+}
+
+
 }

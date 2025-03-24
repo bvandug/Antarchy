@@ -310,8 +310,16 @@ public class HexTilemapGenerator : MonoBehaviour
                     {
                         tileData.FillLevel += 1f; // Increase fill level
                         float fillRatio = tileData.FillLevel / tileData.MaxFill;
-                        Color newColor = Color.Lerp(Color.white, Color.blue, fillRatio);
-                        tilemap.SetColor(tilePos, newColor);
+                        // Color newColor = Color.Lerp(Color.white, Color.blue, fillRatio);
+                        // tilemap.SetColor(tilePos, newColor);
+                        if (tileData.Tile == waterTile)
+                        {
+                            tilemap.SetColor(tilePos, Color.Lerp(Color.white, Color.blue, fillRatio));
+                            }
+                        else if (tileData.Tile == foodTile)
+                        {
+                           tilemap.SetColor(tilePos, Color.Lerp(Color.white, Color.red, fillRatio));
+                         }
                         Debug.Log($"Filling Water at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
                     }
                 }
