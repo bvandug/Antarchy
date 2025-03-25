@@ -409,6 +409,7 @@ public class HexTilemapGenerator : MonoBehaviour
                 Debug.Log($"Collected {tileData.FillLevel} water from tile {cell}, water = {water} ");
                 tileData.FillLevel = 0;
                 tilemap.SetColor(cell, Color.white);
+                FindFirstObjectByType<AudioManager>().Play("waterSound");
                 
             }
 
@@ -418,6 +419,7 @@ public class HexTilemapGenerator : MonoBehaviour
                 Debug.Log($"Collected {tileData.FillLevel} food from tile {cell}, food= {food} ");
                 tileData.FillLevel = 0;
                 tilemap.SetColor(cell, Color.white);
+                FindFirstObjectByType<AudioManager>().Play("foodSound");
             }
 
             if (tileData.Tile == spawnTile)
