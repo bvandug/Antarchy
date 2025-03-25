@@ -9,7 +9,7 @@ public class Timer : MonoBehaviour
     [SerializeField] Color normalColor = Color.white;
     [SerializeField] Color warningColor = Color.red;
     float elapsedTime;
-    float levelTime = 20;
+    float levelTime = 300;
     float remainingTime;
     public GameObject timeUpPanel;
     private bool isPaused = false;

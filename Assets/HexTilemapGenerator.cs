@@ -23,9 +23,9 @@ public class HexTilemapGenerator : MonoBehaviour
     public ProgressBar populationProgressBar;
     public ProgressBar satisfactionProgressBar;
 
-    private Dictionary<Vector3Int, HexTileData> hexMapData = new Dictionary<Vector3Int, HexTileData>();
+    public Dictionary<Vector3Int, HexTileData> hexMapData = new Dictionary<Vector3Int, HexTileData>();
 
-    private float population = 1000;
+    public float population = 10;
     private float food = 0;
     private float water = 0;
 
@@ -206,7 +206,7 @@ public class HexTilemapGenerator : MonoBehaviour
     
 
 
-    int GetMiningCost(Vector3Int mouseCell) 
+    public int GetMiningCost(Vector3Int mouseCell) 
     { 
         int baseCost = 5; 
         int increasePerStep = 10;
@@ -504,15 +504,15 @@ public class HexTilemapGenerator : MonoBehaviour
         satisfactionProgressBar.maximum=100;
         satisfactionProgressBar.SetProgress((int)satisfactionRatio);
 
-        if (satisfactionRatio < 40 && !gameOverTriggered){
+        // if (satisfactionRatio < 40 && !gameOverTriggered){
 
-            gameOverTriggered = true;
-            gameOverPanel.SetActive(true);
-            Time.timeScale = 0f;
-            Debug.Log("Game Over: Satisfaction too low!");
+        //     gameOverTriggered = true;
+        //     gameOverPanel.SetActive(true);
+        //     Time.timeScale = 0f;
+        //     Debug.Log("Game Over: Satisfaction too low!");
 
 
-        }
+        // }
 
     }
 
