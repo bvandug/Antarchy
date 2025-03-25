@@ -8,7 +8,7 @@ public class AntAI : MonoBehaviour
 {
     public GameObject antSpritePrefab;
     public int antCount = 10;
-    public TextMeshProUGUI antCountText;
+    
     
     private List<GameObject> antInstances = new List<GameObject>();
     private Tilemap tilemap;
@@ -41,13 +41,9 @@ public class AntAI : MonoBehaviour
     {
         mapGenerator = FindFirstObjectByType<HexTilemapGenerator>();
         tilemap = mapGenerator.tilemap;
-        UpdateAntText();
+        
     }
-    public void UpdateAntText(){
-        if (antCountText != null){
-           antCountText.text = antCount.ToString(); 
-        }
-    }
+   
     
     public void OnFirstBlockMined(Vector3Int cellPosition)
     {
@@ -124,7 +120,7 @@ public class AntAI : MonoBehaviour
                 StartCoroutine(MoveAntToCell(i, nextCell));
             }
         }
-        UpdateAntText();
+        
     }
     
     IEnumerator PlanAntPath(int antIndex, float initialDelay)

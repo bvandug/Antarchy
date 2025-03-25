@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
@@ -28,6 +29,7 @@ public class HexTilemapGenerator : MonoBehaviour
     public float population = 10;
     private float food = 0;
     private float water = 0;
+    public TextMeshProUGUI antCountText;
 
     private int waterGenerator = 0;
     private int foodGenerator =0;
@@ -57,6 +59,7 @@ public class HexTilemapGenerator : MonoBehaviour
         GenerateMap(seed);
         StartCoroutine(FillGenerators());
         StartCoroutine(UpdateResourcesCoroutine());
+        UpdateAntText();
         
 
     }
@@ -64,6 +67,7 @@ public class HexTilemapGenerator : MonoBehaviour
     private void Update()
     {
        CheckInput();
+       UpdateAntText();
     }
 
     void CheckInput()
@@ -385,6 +389,7 @@ public class HexTilemapGenerator : MonoBehaviour
                     {
                         tileData.FillLevel += 2f; // Increase fill level
                         Debug.Log($"Spawning ants at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
+                        
                     }
                 }
             }
@@ -416,6 +421,7 @@ public class HexTilemapGenerator : MonoBehaviour
             if (tileData.Tile == spawnTile)
             {
                 population += tileData.FillLevel;
+                UpdateAntText();
                 Debug.Log($"Spawned {tileData.FillLevel} ants from tile {cell}, food= {food} ");
                 tileData.FillLevel = 0;
             }
@@ -480,7 +486,7 @@ public class HexTilemapGenerator : MonoBehaviour
         return;
     }
 
-        float avgAntsPerBlock = (float)antAI.antCount / minedBlockCount;
+        float avgAntsPerBlock = (float)population / minedBlockCount;
             if (avgAntsPerBlock <= minAntsPerBlock){
                 spaceRatio = 100;
                 populationProgressBar.SetProgress(100);  // Full space
@@ -514,6 +520,11 @@ public class HexTilemapGenerator : MonoBehaviour
 
         // }
 
+    }
+    public void UpdateAntText(){
+        if (antCountText != null){
+           antCountText.text = population.ToString(); 
+        }
     }
 
     
