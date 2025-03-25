@@ -7,7 +7,7 @@ public class HexTileData
     public bool IsActivated { get; set; }
     public float FillLevel { get; set; } // Current fill level
     public float MaxFill { get;} // Max before giving resource
-    public Color TileColor {get; set;}
+    public bool IsDisabled{get; set;}
 
     public HexTileData(TileBase tile)
     {
@@ -15,7 +15,8 @@ public class HexTileData
         MaxFill = 200;
         FillLevel = 0f;
         IsActivated = false;
-        TileColor = Color.white;
+        IsDisabled = false;
+        
 
     }
 }

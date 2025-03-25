@@ -9,7 +9,7 @@ public class Timer : MonoBehaviour
     [SerializeField] Color normalColor = Color.white;
     [SerializeField] Color warningColor = Color.red;
     float elapsedTime;
-    float levelTime = 10;
+    float levelTime = 30;
     float remainingTime;
     public GameObject timeUpPanel;
     private bool isPaused = false;
@@ -32,7 +32,7 @@ public class Timer : MonoBehaviour
 
         if (remainingTime <= 0){
             remainingTime = 0;
-            attackManager.PopulationKilled();
+            attackManager.ExecuteAttack();
             if (attackManager.gameOver == false){
                 ShowTimeUpPanel();
             }

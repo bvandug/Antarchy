@@ -403,6 +403,11 @@ public class HexTilemapGenerator : MonoBehaviour
     {
         if (hexMapData.TryGetValue(cell, out var tileData)) 
         {
+            if (tileData.IsDisabled)
+            {
+                Debug.Log($"Tile at {cell} is disabled! Cannot collect resources.");
+                return;
+                }
             if (tileData.Tile == waterTile)
             {
                 water += tileData.FillLevel;
@@ -530,22 +535,6 @@ public class HexTilemapGenerator : MonoBehaviour
            antCountText.text = population.ToString(); 
         }
     }
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }
