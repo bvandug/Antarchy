@@ -12,7 +12,7 @@ public class HexTilemapGenerator : MonoBehaviour
     private int width = 30;
     private int height = 300;
     public Tilemap tilemap;
-    public TileBase dirtTile, waterTile, stoneTile, foodTile, minedTile, spawnTile;
+    public TileBase dirtTile, WaterTile0, WaterTile25, WaterTile50, WaterTile75, WaterTile100, stoneTile, foodTile, minedTile, spawnTile;
 
     public float noiseScale = 0.3f; // Lower for bigger clusters
     public float stoneNoiseScale = 0.15f; // Stone uses separate noise for better clustering
@@ -85,7 +85,7 @@ public class HexTilemapGenerator : MonoBehaviour
                 Vector3Int mouseCell = tilemap.WorldToCell(mousePosWorld);
                 if (hexMapData.TryGetValue(mouseCell, out HexTileData tileData))
                 {
-                    if (hexMapData[mouseCell].Tile == foodTile || hexMapData[mouseCell].Tile == waterTile|| hexMapData[mouseCell].Tile == spawnTile)
+                    if (hexMapData[mouseCell].Tile == foodTile || CheckWaterTile(mouseCell) || hexMapData[mouseCell].Tile == spawnTile)
                     {
                         CollectResource(mouseCell);
                     }
@@ -115,7 +115,7 @@ public class HexTilemapGenerator : MonoBehaviour
                 TileBase selectedTile;
 
                 if (baseNoise > waterThreshold)
-                    selectedTile = waterTile;
+                    selectedTile = WaterTile100;
                 else if (stoneNoise > stoneThreshold)
                     selectedTile = stoneTile;
                 else
@@ -313,7 +313,7 @@ public class HexTilemapGenerator : MonoBehaviour
         {
             if (hexMapData.TryGetValue(neighbor, out HexTileData neighborTile))
             {
-                if(neighborTile.Tile == waterTile)
+                if(CheckWaterTile(neighbor))
                 {
                     if (!neighborTile.IsActivated)
                     {
@@ -355,41 +355,29 @@ public class HexTilemapGenerator : MonoBehaviour
                 HexTileData tileData = kvp.Value;
                 Vector3Int tilePos = kvp.Key;
 
-                if (tileData.Tile == waterTile && tileData.IsActivated)
+                if (CheckWaterTile(tilePos) && tileData.IsActivated)
                 {
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
-                        tileData.FillLevel += 1f; // Increase fill level
-                        float fillRatio = tileData.FillLevel / tileData.MaxFill;
-                        // Color newColor = Color.Lerp(Color.white, Color.blue, fillRatio);
-                        // tilemap.SetColor(tilePos, newColor);
-                        if (tileData.Tile == waterTile)
-                        {
-                            tilemap.SetColor(tilePos, Color.Lerp(Color.white, Color.blue, fillRatio));
-                            }
-                        else if (tileData.Tile == foodTile)
-                        {
-                           tilemap.SetColor(tilePos, Color.Lerp(Color.white, Color.red, fillRatio));
-                         }
-                        Debug.Log($"Filling Water at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
+                        tileData.FillLevel += 2f; // Increase fill level
+                        Debug.Log($"Collecting water at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
+
                     }
                 }
                 if (tileData.Tile == foodTile && tileData.IsActivated)
                 {
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
-                        tileData.FillLevel += 5f; // Increase fill level
-                        float fillRatio = tileData.FillLevel / tileData.MaxFill;
-                        Color newColor = Color.Lerp(Color.white, new Color(0.5f, 0, 0.5f), fillRatio); // Purple
-                        tilemap.SetColor(tilePos, newColor);
-                        Debug.Log($"Filling Food at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
+                        tileData.FillLevel += 2f; // Increase fill level
+                        Debug.Log($"Collecting food at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
+
                     }
                 }
                 if (tileData.Tile == spawnTile && tileData.IsActivated)
                 {
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
-                        tileData.FillLevel += 2f; // Increase fill level
+                        tileData.FillLevel += 100f; // Increase fill level
                         Debug.Log($"Spawning ants at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
                         
                     }
@@ -403,12 +391,11 @@ public class HexTilemapGenerator : MonoBehaviour
     {
         if (hexMapData.TryGetValue(cell, out var tileData)) 
         {
-            if (tileData.Tile == waterTile)
+            if (CheckWaterTile(cell))
             {
                 water += tileData.FillLevel;
                 Debug.Log($"Collected {tileData.FillLevel} water from tile {cell}, water = {water} ");
                 tileData.FillLevel = 0;
-                tilemap.SetColor(cell, Color.white);
                 
             }
 
@@ -417,7 +404,6 @@ public class HexTilemapGenerator : MonoBehaviour
                 food += tileData.FillLevel;
                 Debug.Log($"Collected {tileData.FillLevel} food from tile {cell}, food= {food} ");
                 tileData.FillLevel = 0;
-                tilemap.SetColor(cell, Color.white);
             }
 
             if (tileData.Tile == spawnTile)
@@ -437,6 +423,20 @@ public class HexTilemapGenerator : MonoBehaviour
         }
     }
 
+    public bool CheckWaterTile(Vector3Int tile)
+    {
+        if (hexMapData.TryGetValue(tile, out var tileData))
+        {
+            if (tileData.Tile == WaterTile0 || tileData.Tile == WaterTile25 || tileData.Tile == WaterTile50 || tileData.Tile == WaterTile75 || tileData.Tile == WaterTile100)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //UI
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     public void UpdateProgressBars(){
 
         

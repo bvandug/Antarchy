@@ -4974,7 +4974,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilemap: {fileID: 860469937}
   dirtTile: {fileID: 11400000, guid: dc8d0a2ddb517d4469bf870e8d2ed6ee, type: 2}
-  waterTile: {fileID: 11400000, guid: 52717c2e529ebc84784a8ce15c7127a4, type: 2}
+  WaterTile0: {fileID: 11400000, guid: 2815ff3a9c7a56c48be5e8caf4aa4792, type: 2}
+  WaterTile25: {fileID: 11400000, guid: 369e6b5d1e2cabc4ca176fce3be59da4, type: 2}
+  WaterTile50: {fileID: 11400000, guid: 85b42f401f5ec1f48930844ec1d4bb8e, type: 2}
+  WaterTile75: {fileID: 11400000, guid: bd3d1fda137ab7647853937ce9f5dd73, type: 2}
+  WaterTile100: {fileID: 11400000, guid: 52717c2e529ebc84784a8ce15c7127a4, type: 2}
   stoneTile: {fileID: 11400000, guid: 6607ff6ab7bc6d84a8553ca958cde156, type: 2}
   foodTile: {fileID: 11400000, guid: 9be21a7fe35a9984a946f16b70a75a85, type: 2}
   minedTile: {fileID: 11400000, guid: cf8a12cf56e0753459449e664f3e5423, type: 2}
@@ -4991,6 +4995,7 @@ MonoBehaviour:
   antCountText: {fileID: 0}
   antAI: {fileID: 1815529654}
   gameOverPanel: {fileID: 1549626162}
+  gameOverText: {fileID: 0}
 --- !u!1 &1416451377
 GameObject:
   m_ObjectHideFlags: 0
