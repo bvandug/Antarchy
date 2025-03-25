@@ -27,8 +27,8 @@ public class HexTilemapGenerator : MonoBehaviour
     public Dictionary<Vector3Int, HexTileData> hexMapData = new Dictionary<Vector3Int, HexTileData>();
 
     public float population = 10;
-    private float food = 0;
-    private float water = 0;
+    private float food = 100;
+    private float water = 200;
     public TextMeshProUGUI antCountText;
 
     private int waterGenerator = 0;
@@ -450,13 +450,13 @@ public class HexTilemapGenerator : MonoBehaviour
 
     public void UpdateResourceBar(){
 
-        float totalFoodNeeded = (1f/6f)*antAI.antCount*60;  
-        float totalWaterNeeded = (1f/3f)*antAI.antCount*60;
+        float totalFoodNeeded = (1f/6f)*population*60;  
+        float totalWaterNeeded = (1f/3f)*population*60;
         
         if (food > 0){
-            food -= (1f/6f)*antAI.antCount;}
+            food -= (1f/6f)*population;}
         if (water >0){
-            water -= (1f/3f)*antAI.antCount;}
+            water -= (1f/3f)*population;}
 
         foodRatio = Mathf.Clamp01(food/ totalFoodNeeded )*100;
         waterRatio = Mathf.Clamp01(water/ totalWaterNeeded)*100;
@@ -510,15 +510,15 @@ public class HexTilemapGenerator : MonoBehaviour
         satisfactionProgressBar.maximum=100;
         satisfactionProgressBar.SetProgress((int)satisfactionRatio);
 
-        // if (satisfactionRatio < 40 && !gameOverTriggered){
+        if (satisfactionRatio < 40 && !gameOverTriggered){
 
-        //     gameOverTriggered = true;
-        //     gameOverPanel.SetActive(true);
-        //     Time.timeScale = 0f;
-        //     Debug.Log("Game Over: Satisfaction too low!");
+            gameOverTriggered = true;
+            gameOverPanel.SetActive(true);
+            Time.timeScale = 0f;
+            Debug.Log("Game Over: Satisfaction too low!");
 
 
-        // }
+        }
 
     }
     public void UpdateAntText(){
