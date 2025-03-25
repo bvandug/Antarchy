@@ -62,6 +62,8 @@ public class HexTilemapGenerator : MonoBehaviour
         StartCoroutine(FillGenerators());
         StartCoroutine(UpdateResourcesCoroutine());
         UpdateAntText();
+
+        FindFirstObjectByType<AudioManager>().Play("Theme");
         
 
     }
@@ -396,6 +398,8 @@ public class HexTilemapGenerator : MonoBehaviour
                 water += tileData.FillLevel;
                 Debug.Log($"Collected {tileData.FillLevel} water from tile {cell}, water = {water} ");
                 tileData.FillLevel = 0;
+                tilemap.SetColor(cell, Color.white);
+                FindFirstObjectByType<AudioManager>().Play("waterSound");
                 
             }
 
@@ -404,6 +408,8 @@ public class HexTilemapGenerator : MonoBehaviour
                 food += tileData.FillLevel;
                 Debug.Log($"Collected {tileData.FillLevel} food from tile {cell}, food= {food} ");
                 tileData.FillLevel = 0;
+                tilemap.SetColor(cell, Color.white);
+                FindFirstObjectByType<AudioManager>().Play("foodSound");
             }
 
             if (tileData.Tile == spawnTile)
@@ -522,6 +528,11 @@ public class HexTilemapGenerator : MonoBehaviour
         gameOverText.text = reason.ToString();
         gameOverTriggered = true;
         gameOverPanel.SetActive(true);
+        // game over sound
+        FindFirstObjectByType<AudioManager>().Pause("Theme");
+        FindFirstObjectByType<AudioManager>().Play("gameOver");
+        
+        //FindFirstObjectByType<AudioManager>().Resume("Theme");
         Time.timeScale = 0f;
 
     }

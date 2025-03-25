@@ -23,7 +23,7 @@ public class AttackManager : MonoBehaviour
     // This function is called when the timer runs out
     // This kills some of the ant population and triggers a random attack
     public void PopulationKilled()
-    {
+    {while (gameOver==false){
         attackCount++;
         int antsKilled = 5*attackCount*attackCount;
 
@@ -64,7 +64,7 @@ public class AttackManager : MonoBehaviour
                 break;
         }
 
-    }
+    }}
 
     void termiteAttack() 
     {
