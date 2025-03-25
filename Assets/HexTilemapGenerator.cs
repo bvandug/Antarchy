@@ -62,6 +62,8 @@ public class HexTilemapGenerator : MonoBehaviour
         StartCoroutine(FillGenerators());
         StartCoroutine(UpdateResourcesCoroutine());
         UpdateAntText();
+
+        FindFirstObjectByType<AudioManager>().Play("Theme");
         
 
     }
@@ -524,6 +526,11 @@ public class HexTilemapGenerator : MonoBehaviour
         gameOverText.text = reason.ToString();
         gameOverTriggered = true;
         gameOverPanel.SetActive(true);
+        // game over sound
+        FindFirstObjectByType<AudioManager>().Pause("Theme");
+        FindFirstObjectByType<AudioManager>().Play("gameOver");
+        
+        //FindFirstObjectByType<AudioManager>().Resume("Theme");
         Time.timeScale = 0f;
 
     }

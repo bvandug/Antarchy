@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 using UnityEditor.Audio;
+using UnityEditor;
+using SlimUI.ModernMenu;
 
 public class AudioManager : MonoBehaviour
 {
@@ -45,6 +47,15 @@ public class AudioManager : MonoBehaviour
             }
             s.source.Play();
         }
+
+    public void Pause(string name) 
+    {
+        Sound s = Array.Find(sounds, sound => sound.name == name);
+        s.source.Pause();
+        
+    }
+
+    
 }
 
 
