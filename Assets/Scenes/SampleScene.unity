@@ -4373,7 +4373,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -28.403992, y: 16.989014}
+  m_AnchoredPosition: {x: -28.404053, y: 16.989014}
   m_SizeDelta: {x: -761.224, y: -405.263}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1267986997
@@ -4974,7 +4974,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilemap: {fileID: 860469937}
   dirtTile: {fileID: 11400000, guid: dc8d0a2ddb517d4469bf870e8d2ed6ee, type: 2}
-  waterTile: {fileID: 11400000, guid: 2815ff3a9c7a56c48be5e8caf4aa4792, type: 2}
+  waterTile: {fileID: 11400000, guid: 52717c2e529ebc84784a8ce15c7127a4, type: 2}
   stoneTile: {fileID: 11400000, guid: 6607ff6ab7bc6d84a8553ca958cde156, type: 2}
   foodTile: {fileID: 11400000, guid: 9be21a7fe35a9984a946f16b70a75a85, type: 2}
   minedTile: {fileID: 11400000, guid: cf8a12cf56e0753459449e664f3e5423, type: 2}
@@ -4987,6 +4987,8 @@ MonoBehaviour:
   waterProgressBar: {fileID: 1214806825}
   populationProgressBar: {fileID: 1035950047}
   satisfactionProgressBar: {fileID: 898623935}
+  population: 10
+  antCountText: {fileID: 0}
   antAI: {fileID: 1815529654}
   gameOverPanel: {fileID: 1549626162}
 --- !u!1 &1416451377
@@ -6393,7 +6395,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   antSpritePrefab: {fileID: 5072348331939863145, guid: 4055cf1e9a5044712a8c3816cc7c7e7a, type: 3}
   antCount: 10
-  antCountText: {fileID: 1817412128}
   moveSpeed: 2
   pathPlanningInterval: 0.5
   pathPlanningVariation: 0.3
