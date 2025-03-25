@@ -9,7 +9,7 @@ public class Timer : MonoBehaviour
     [SerializeField] Color normalColor = Color.white;
     [SerializeField] Color warningColor = Color.red;
     float elapsedTime;
-    float levelTime = 300;
+    float levelTime = 10;
     float remainingTime;
     public GameObject timeUpPanel;
     private bool isPaused = false;
@@ -32,11 +32,12 @@ public class Timer : MonoBehaviour
 
         if (remainingTime <= 0){
             remainingTime = 0;
-            // Call AttackManager populationKilled method 
-            // This decreases population and triggers attack
-            attackManager.populationKilled();
-
-            ShowTimeUpPanel();
+            attackManager.PopulationKilled();
+            if (attackManager.gameOver == false){
+                ShowTimeUpPanel();
+            }
+            
+            
         }
 
         int minutes = Mathf.FloorToInt(remainingTime / 60);
@@ -59,6 +60,7 @@ public class Timer : MonoBehaviour
     }
 
     public void OnTimeUpPanelOk(){
+
         ResetTimer();
         isPaused = false;
         timeUpPanel.SetActive(false);

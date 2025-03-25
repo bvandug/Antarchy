@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -49,13 +50,14 @@ public class HexTilemapGenerator : MonoBehaviour
     float satisfactionRatio = 100;
 
     public GameObject gameOverPanel;
+    public TextMeshProUGUI gameOverText;
     private bool gameOverTriggered = false;
     
 
     void Start()
     {
         gameOverPanel.SetActive(false);
-        seed = Random.Range(0, 10000);
+        seed = UnityEngine.Random.Range(0, 10000);
         GenerateMap(seed);
         StartCoroutine(FillGenerators());
         StartCoroutine(UpdateResourcesCoroutine());
@@ -133,8 +135,8 @@ public class HexTilemapGenerator : MonoBehaviour
     {
         for (int y = 5; y < height; y += 10)
         {
-            int randomX = Random.Range(0, width);
-            int randomYOffset = Random.Range(-3, 3);
+            int randomX = UnityEngine.Random.Range(0, width);
+            int randomYOffset = UnityEngine.Random.Range(-3, 3);
             Vector3Int tilePosition = new Vector3Int(randomX, -(y + randomYOffset), 0);
             tilemap.SetTile(tilePosition, foodTile);
             hexMapData[tilePosition].Tile = foodTile;
@@ -145,7 +147,7 @@ public class HexTilemapGenerator : MonoBehaviour
     void EnsureSpawnPlacement()
     {
         //ensure spawn with ant nest on row 2 with surronding stone
-        int randomStartX = Random.Range(0, width);
+        int randomStartX = UnityEngine.Random.Range(0, width);
         Vector3Int TilePosStart = new Vector3Int(randomStartX, -1, 0);
         tilemap.SetTile(TilePosStart, spawnTile);
         hexMapData[TilePosStart].Tile = spawnTile;
@@ -165,8 +167,8 @@ public class HexTilemapGenerator : MonoBehaviour
 
         for (int y = 10; y < height; y += 15)
         {
-            int randomX = Random.Range(0, width);
-            int randomYOffset = Random.Range(-3, 3);
+            int randomX = UnityEngine.Random.Range(0, width);
+            int randomYOffset = UnityEngine.Random.Range(-3, 3);
             Vector3Int tilePosition = new Vector3Int(randomX, -(y + randomYOffset), 0);
             tilemap.SetTile(tilePosition, spawnTile);
             hexMapData[tilePosition].Tile = spawnTile;
@@ -441,10 +443,6 @@ public class HexTilemapGenerator : MonoBehaviour
         UpdateResourceBar();
         UpdatePopulationBar();
         UpdateSatisfaction();
-
-    
-        
-
     
     }
 
@@ -512,13 +510,19 @@ public class HexTilemapGenerator : MonoBehaviour
 
         if (satisfactionRatio < 40 && !gameOverTriggered){
 
-            gameOverTriggered = true;
-            gameOverPanel.SetActive(true);
-            Time.timeScale = 0f;
+            TriggerGameOver("Satisfaction too low, the colony killed you!");
             Debug.Log("Game Over: Satisfaction too low!");
 
 
         }
+
+    }
+
+    public void TriggerGameOver(String reason){
+        gameOverText.text = reason.ToString();
+        gameOverTriggered = true;
+        gameOverPanel.SetActive(true);
+        Time.timeScale = 0f;
 
     }
     public void UpdateAntText(){

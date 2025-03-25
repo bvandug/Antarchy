@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -6,6 +7,8 @@ public class AttackManager : MonoBehaviour
 {
     private Tilemap tilemap;
     private HexTilemapGenerator mapGenerator;
+    private int attackCount = 0;
+    public Boolean gameOver = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -19,14 +22,25 @@ public class AttackManager : MonoBehaviour
    
     // This function is called when the timer runs out
     // This kills some of the ant population and triggers a random attack
-    public void populationKilled()
+    public void PopulationKilled()
     {
+        attackCount++;
+        int antsKilled = 5*attackCount*attackCount;
+
         Debug.Log("Population before attack " + mapGenerator.population);
-        mapGenerator.population = mapGenerator.population/2;
+        
+        if (antsKilled > mapGenerator.population){
+            Debug.Log("Not enough ants, Game Over");
+            gameOver = true;
+            mapGenerator.TriggerGameOver("Not enough ants to withstand attack!");
+
+        }else {
+            mapGenerator.population -= antsKilled;
+        }
         Debug.Log("Population after attack " + mapGenerator.population);
 
         //Randomly trigger different attacks
-        int randomAttack = Random.Range(1, 7); // Generates a number between 1 and 6
+        int randomAttack = UnityEngine.Random.Range(1, 7); // Generates a number between 1 and 6
         Debug.Log(randomAttack);
         switch (randomAttack)
         {
