@@ -32,7 +32,7 @@ public class Timer : MonoBehaviour
 
         if (remainingTime <= 0){
             remainingTime = 0;
-            attackManager.PopulationKilled();
+            attackManager.ExecuteAttack();
             if (attackManager.gameOver == false){
                 ShowTimeUpPanel();
             }
