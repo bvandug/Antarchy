@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 55f747e8af38fbe4d8819f37be6fd5aa, type: 3}
-  m_Name: Water25
+  m_Name: Nest50
   m_EditorClassIdentifier: 
-  m_DefaultSprite: {fileID: 21300000, guid: 77aa406b5c80af74fb5b1eedd0f6906a, type: 3}
+  m_DefaultSprite: {fileID: 21300000, guid: 81da2e101689e7142aa3beb775f05bdf, type: 3}
   m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 1
   m_TilingRules: []

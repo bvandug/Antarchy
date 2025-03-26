@@ -5110,15 +5110,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilemap: {fileID: 860469937}
   dirtTile: {fileID: 11400000, guid: dc8d0a2ddb517d4469bf870e8d2ed6ee, type: 2}
+  stoneTile: {fileID: 11400000, guid: 6607ff6ab7bc6d84a8553ca958cde156, type: 2}
+  minedTile: {fileID: 11400000, guid: cf8a12cf56e0753459449e664f3e5423, type: 2}
   WaterTile0: {fileID: 11400000, guid: d799f2738292c7f4bbe614c8db2440e0, type: 2}
   WaterTile25: {fileID: 11400000, guid: 369e6b5d1e2cabc4ca176fce3be59da4, type: 2}
   WaterTile50: {fileID: 11400000, guid: 85b42f401f5ec1f48930844ec1d4bb8e, type: 2}
   WaterTile75: {fileID: 11400000, guid: bd3d1fda137ab7647853937ce9f5dd73, type: 2}
   WaterTile100: {fileID: 11400000, guid: 52717c2e529ebc84784a8ce15c7127a4, type: 2}
-  stoneTile: {fileID: 11400000, guid: 6607ff6ab7bc6d84a8553ca958cde156, type: 2}
-  foodTile: {fileID: 11400000, guid: 9be21a7fe35a9984a946f16b70a75a85, type: 2}
-  minedTile: {fileID: 11400000, guid: cf8a12cf56e0753459449e664f3e5423, type: 2}
-  spawnTile: {fileID: 11400000, guid: 82af4f82344befd4c851b21ce148ca3d, type: 2}
+  FoodTile0: {fileID: 11400000, guid: f2df99c76b14c2b47a09a6d38c2bd70b, type: 2}
+  FoodTile25: {fileID: 11400000, guid: fe7c78ae11174294cb2d65bd23c0a6db, type: 2}
+  FoodTile50: {fileID: 11400000, guid: 9c0f069cce46cd24ca43a4d67bf137b5, type: 2}
+  FoodTile75: {fileID: 11400000, guid: 223ee73c89c3e6840bfb827af5ceb473, type: 2}
+  FoodTile100: {fileID: 11400000, guid: b85519fbf882f1b4ea5fd45700b111da, type: 2}
+  SpawnTile0: {fileID: 11400000, guid: 45f696b4332e93a4ca3656c86ecb85a2, type: 2}
+  SpawnTile25: {fileID: 11400000, guid: a89d1448f67e4534aa80915a48018a1d, type: 2}
+  SpawnTile50: {fileID: 11400000, guid: 462a0a53b804b0e449ca783281c2b461, type: 2}
+  SpawnTile75: {fileID: 11400000, guid: 8c2d2919c4871824da436cf70f28d2cc, type: 2}
+  SpawnTile100: {fileID: 11400000, guid: 8ab2e49c4a84f73479f57cd86fa5e198, type: 2}
   noiseScale: 0.6
   stoneNoiseScale: 0.15
   waterThreshold: 0.8

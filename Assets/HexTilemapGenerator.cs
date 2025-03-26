@@ -12,7 +12,10 @@ public class HexTilemapGenerator : MonoBehaviour
     private int width = 30;
     private int height = 300;
     public Tilemap tilemap;
-    public TileBase dirtTile, WaterTile0, WaterTile25, WaterTile50, WaterTile75, WaterTile100, stoneTile, foodTile, minedTile, spawnTile;
+    public TileBase dirtTile, stoneTile, minedTile,
+        WaterTile0, WaterTile25, WaterTile50, WaterTile75, WaterTile100,
+        FoodTile0, FoodTile25, FoodTile50, FoodTile75, FoodTile100, 
+        SpawnTile0, SpawnTile25, SpawnTile50, SpawnTile75, SpawnTile100;
 
     public float noiseScale = 0.3f; // Lower for bigger clusters
     public float stoneNoiseScale = 0.15f; // Stone uses separate noise for better clustering
@@ -87,7 +90,7 @@ public class HexTilemapGenerator : MonoBehaviour
                 Vector3Int mouseCell = tilemap.WorldToCell(mousePosWorld);
                 if (hexMapData.TryGetValue(mouseCell, out HexTileData tileData))
                 {
-                    if (hexMapData[mouseCell].Tile == foodTile || CheckWaterTile(mouseCell) || hexMapData[mouseCell].Tile == spawnTile)
+                    if (CheckFoodTile(mouseCell)|| CheckWaterTile(mouseCell) || CheckSpawnTile(mouseCell))
                     {
                         CollectResource(mouseCell);
                     }
@@ -140,8 +143,8 @@ public class HexTilemapGenerator : MonoBehaviour
             int randomX = UnityEngine.Random.Range(0, width);
             int randomYOffset = UnityEngine.Random.Range(-3, 3);
             Vector3Int tilePosition = new Vector3Int(randomX, -(y + randomYOffset), 0);
-            tilemap.SetTile(tilePosition, foodTile);
-            hexMapData[tilePosition].Tile = foodTile;
+            tilemap.SetTile(tilePosition, FoodTile100);
+            hexMapData[tilePosition].Tile = FoodTile100;
 
         }
     }
@@ -151,8 +154,8 @@ public class HexTilemapGenerator : MonoBehaviour
         //ensure spawn with ant nest on row 2 with surronding stone
         int randomStartX = UnityEngine.Random.Range(0, width);
         Vector3Int TilePosStart = new Vector3Int(randomStartX, -1, 0);
-        tilemap.SetTile(TilePosStart, spawnTile);
-        hexMapData[TilePosStart].Tile = spawnTile;
+        tilemap.SetTile(TilePosStart, SpawnTile100);
+        hexMapData[TilePosStart].Tile = SpawnTile100;
         //make surrounding tiles-> dirt
         Vector3Int[] neighbors = GetHexNeighbors(TilePosStart);
         foreach (Vector3Int neighbor in neighbors)
@@ -172,8 +175,8 @@ public class HexTilemapGenerator : MonoBehaviour
             int randomX = UnityEngine.Random.Range(0, width);
             int randomYOffset = UnityEngine.Random.Range(-3, 3);
             Vector3Int tilePosition = new Vector3Int(randomX, -(y + randomYOffset), 0);
-            tilemap.SetTile(tilePosition, spawnTile);
-            hexMapData[tilePosition].Tile = spawnTile;
+            tilemap.SetTile(tilePosition, SpawnTile100);
+            hexMapData[tilePosition].Tile = SpawnTile100;
 
         }
     }
@@ -325,7 +328,7 @@ public class HexTilemapGenerator : MonoBehaviour
                     }
                 }
 
-                if(neighborTile.Tile == foodTile)
+                if(CheckFoodTile(neighbor))
                 {
                     if (!neighborTile.IsActivated)
                     {
@@ -335,7 +338,7 @@ public class HexTilemapGenerator : MonoBehaviour
                     }
                 }
 
-                if (neighborTile.Tile == spawnTile)
+                if (CheckSpawnTile(neighbor))
                 {
                     if (!neighborTile.IsActivated)
                     {
@@ -362,24 +365,96 @@ public class HexTilemapGenerator : MonoBehaviour
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
                         tileData.FillLevel += 2f; // Increase fill level
+                        if (tileData.FillLevel <= 50f)
+                        {
+                            tilemap.SetTile(tilePos, WaterTile0);
+                        }
+
+                        if (tileData.FillLevel > 50f && tileData.FillLevel <=100f)
+                        {
+                            tilemap.SetTile(tilePos, WaterTile25);
+                        }
+
+                        if (tileData.FillLevel > 100f && tileData.FillLevel <= 150f)
+                        {
+                            tilemap.SetTile(tilePos, WaterTile50);
+                        }
+
+                        if (tileData.FillLevel > 150f && tileData.FillLevel <= 199f)
+                        {
+                            tilemap.SetTile(tilePos, WaterTile75);
+                        }
+
+                        if (tileData.FillLevel == 200f)
+                        {
+                            tilemap.SetTile(tilePos, WaterTile100);
+                        }
                         Debug.Log($"Collecting water at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
 
                     }
                 }
-                if (tileData.Tile == foodTile && tileData.IsActivated)
+                if (CheckFoodTile(tilePos) && tileData.IsActivated)
                 {
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
                         tileData.FillLevel += 2f; // Increase fill level
+                        if (tileData.FillLevel <= 50f)
+                        {
+                            tilemap.SetTile(tilePos, FoodTile0);
+                        }
+
+                        if (tileData.FillLevel > 50f && tileData.FillLevel <= 100f)
+                        {
+                            tilemap.SetTile(tilePos, FoodTile25);
+                        }
+
+                        if (tileData.FillLevel > 100f && tileData.FillLevel <= 150f)
+                        {
+                            tilemap.SetTile(tilePos, FoodTile50);
+                        }
+
+                        if (tileData.FillLevel > 150f && tileData.FillLevel <= 199f)
+                        {
+                            tilemap.SetTile(tilePos, FoodTile75);
+                        }
+
+                        if (tileData.FillLevel == 200f)
+                        {
+                            tilemap.SetTile(tilePos, FoodTile100);
+                        }
                         Debug.Log($"Collecting food at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
 
                     }
                 }
-                if (tileData.Tile == spawnTile && tileData.IsActivated)
+                if (CheckSpawnTile(tilePos) && tileData.IsActivated)
                 {
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
-                        tileData.FillLevel += 100f; // Increase fill level
+                        tileData.FillLevel += 2f; // Increase fill level
+                        if (tileData.FillLevel <= 50f)
+                        {
+                            tilemap.SetTile(tilePos, SpawnTile0);
+                        }
+
+                        if (tileData.FillLevel > 50f && tileData.FillLevel <= 100f)
+                        {
+                            tilemap.SetTile(tilePos, SpawnTile25);
+                        }
+
+                        if (tileData.FillLevel > 100f && tileData.FillLevel <= 150f)
+                        {
+                            tilemap.SetTile(tilePos, SpawnTile50);
+                        }
+
+                        if (tileData.FillLevel > 150f && tileData.FillLevel <= 199f)
+                        {
+                            tilemap.SetTile(tilePos, SpawnTile75);
+                        }
+
+                        if (tileData.FillLevel == 200f)
+                        {
+                            tilemap.SetTile(tilePos, SpawnTile100);
+                        }
                         Debug.Log($"Spawning ants at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
                         
                     }
@@ -398,12 +473,13 @@ public class HexTilemapGenerator : MonoBehaviour
                 water += tileData.FillLevel;
                 Debug.Log($"Collected {tileData.FillLevel} water from tile {cell}, water = {water} ");
                 tileData.FillLevel = 0;
+                tilemap.SetTile(cell, WaterTile0);
                 tilemap.SetColor(cell, Color.white);
                 FindFirstObjectByType<AudioManager>().Play("waterSound");
                 
             }
 
-            if (tileData.Tile == foodTile)
+            if (CheckFoodTile(cell))
             {
                 food += tileData.FillLevel;
                 Debug.Log($"Collected {tileData.FillLevel} food from tile {cell}, food= {food} ");
@@ -412,7 +488,7 @@ public class HexTilemapGenerator : MonoBehaviour
                 FindFirstObjectByType<AudioManager>().Play("foodSound");
             }
 
-            if (tileData.Tile == spawnTile)
+            if (CheckSpawnTile(cell))
             {
                 population += tileData.FillLevel;
                 UpdateAntText();
@@ -434,6 +510,30 @@ public class HexTilemapGenerator : MonoBehaviour
         if (hexMapData.TryGetValue(tile, out var tileData))
         {
             if (tileData.Tile == WaterTile0 || tileData.Tile == WaterTile25 || tileData.Tile == WaterTile50 || tileData.Tile == WaterTile75 || tileData.Tile == WaterTile100)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool CheckFoodTile(Vector3Int tile)
+    {
+        if (hexMapData.TryGetValue(tile, out var tileData))
+        {
+            if (tileData.Tile == FoodTile0 || tileData.Tile == FoodTile25 || tileData.Tile == FoodTile50 || tileData.Tile == FoodTile75 || tileData.Tile == FoodTile100)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool CheckSpawnTile(Vector3Int tile)
+    {
+        if (hexMapData.TryGetValue(tile, out var tileData))
+        {
+            if (tileData.Tile == SpawnTile0 || tileData.Tile == SpawnTile25 || tileData.Tile == SpawnTile50 || tileData.Tile == SpawnTile75 || tileData.Tile == SpawnTile100)
             {
                 return true;
             }

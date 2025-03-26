@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55f747e8af38fbe4d8819f37be6fd5aa, type: 3}
   m_Name: Water75
   m_EditorClassIdentifier: 
-  m_DefaultSprite: {fileID: 21300000, guid: 5384b468eed8cef45ae0a1d90787d501, type: 3}
+  m_DefaultSprite: {fileID: 21300000, guid: 6c8a2acfc0c3da24cb2ec01b91ff46d6, type: 3}
   m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 1
   m_TilingRules: []
