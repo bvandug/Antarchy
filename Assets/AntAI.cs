@@ -7,12 +7,17 @@ using TMPro;
 public class AntAI : MonoBehaviour
 {
     public GameObject antSpritePrefab;
-    public int antCount = 10;
+    public int antAICount = 0;
     
     
     private List<GameObject> antInstances = new List<GameObject>();
     private Tilemap tilemap;
     private HexTilemapGenerator mapGenerator;
+
+// Population count from HexTileMapGen
+    private float population; 
+    private float minedBlockCount;
+    private Vector3Int spawnPosition;
     
     [Header("Movement Settings")]
     public float moveSpeed = 2f;
@@ -41,19 +46,22 @@ public class AntAI : MonoBehaviour
     {
         mapGenerator = FindFirstObjectByType<HexTilemapGenerator>();
         tilemap = mapGenerator.tilemap;
+        population = mapGenerator.population;
+        minedBlockCount = mapGenerator.minedBlockCount;
         
     }
-   
-    
+
+
     public void OnFirstBlockMined(Vector3Int cellPosition)
     {
+        spawnPosition = cellPosition;
         Vector3 worldPosition = tilemap.GetCellCenterWorld(cellPosition);
         
         // Initialize occupation tracking for first cell
         occupiedCells[cellPosition] = new List<int>();
         
         // Spawn multiple ants
-        for (int i = 0; i < antCount; i++)
+        for (int i = 0; i < 10; i++)
         {
             // Create ant with slight position variation
             Vector3 spawnPosition = worldPosition + new Vector3(
@@ -83,7 +91,7 @@ public class AntAI : MonoBehaviour
             StartCoroutine(PlanAntPath(i, Random.Range(0f, 1f))); // Staggered start
         }
         
-        Debug.Log($"Spawned {antCount} ants at the first mined block: {cellPosition}");
+        //Debug.Log($"Spawned {antCount} ants at the first mined block: {cellPosition}");
     }
     
     void RecordVisit(Vector3Int cell)

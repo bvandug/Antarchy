@@ -22,7 +22,7 @@ public class HexTilemapGenerator : MonoBehaviour
     public float waterThreshold = 0.6f;
     public float stoneThreshold = 0.3f;
     private int seed;
-    private int minedBlockCount =0;
+    public int minedBlockCount =0;
     public ProgressBar foodProgressBar;
     public ProgressBar waterProgressBar;
     public ProgressBar populationProgressBar;
@@ -30,9 +30,9 @@ public class HexTilemapGenerator : MonoBehaviour
 
     public Dictionary<Vector3Int, HexTileData> hexMapData = new Dictionary<Vector3Int, HexTileData>();
 
-    public float population = 10;
-    private float food = 100;
-    private float water = 200;
+    public float population = 100;
+    private float food = 10000;
+    private float water = 20000;
     public TextMeshProUGUI antCountText;
 
     private int waterGenerator = 0;
@@ -41,7 +41,7 @@ public class HexTilemapGenerator : MonoBehaviour
 
     //This code is to notify AntAI when the first tile has been mined.
     private bool firstBlockMined = false;
-    private Vector3Int firstMinedBlockPosition;
+    public Vector3Int firstMinedBlockPosition;
     public AntAI antAI; // Reference to AntAI script
 
     private float minAntsPerBlock = 5f;
@@ -499,6 +499,7 @@ public class HexTilemapGenerator : MonoBehaviour
                 UpdateAntText();
                 Debug.Log($"Spawned {tileData.FillLevel} ants from tile {cell}, food= {food} ");
                 tileData.FillLevel = 0;
+                FindFirstObjectByType<AudioManager>().Play("eggHatching");
             }
         }
     }
@@ -552,7 +553,7 @@ public class HexTilemapGenerator : MonoBehaviour
 
         
         UpdateResourceBar();
-        UpdatePopulationBar();
+        //UpdatePopulationBar();
         UpdateSatisfaction();
     
     }
@@ -585,33 +586,33 @@ public class HexTilemapGenerator : MonoBehaviour
     
 
 
-    public void UpdatePopulationBar(){
-        populationProgressBar.maximum = 100;
+    // public void UpdatePopulationBar(){
+    //     populationProgressBar.maximum = 100;
         
-        if (minedBlockCount == 0)
-    {
-        spaceRatio = 100;
-        populationProgressBar.SetProgress(100); // Avoid divide-by-zero, no space yet
-        return;
-    }
+    //     if (minedBlockCount == 0)
+    // {
+    //     spaceRatio = 100;
+    //     populationProgressBar.SetProgress(100); // Avoid divide-by-zero, no space yet
+    //     return;
+    // }
 
-        float avgAntsPerBlock = (float)population / minedBlockCount;
-            if (avgAntsPerBlock <= minAntsPerBlock){
-                spaceRatio = 100;
-                populationProgressBar.SetProgress(100);  // Full space
-    }
-            else if (avgAntsPerBlock >= maxAntsPerBlock)
-    {
-                spaceRatio = 0;
-                populationProgressBar.SetProgress(0); // No space
-    }
-             else{
-                float overuseRatio = (avgAntsPerBlock - minAntsPerBlock) / (maxAntsPerBlock - minAntsPerBlock);
-                spaceRatio = Mathf.Clamp01(1f - overuseRatio) * 100f;
-                populationProgressBar.SetProgress((int)spaceRatio);
-                }
+    //     float avgAntsPerBlock = (float)population / minedBlockCount;
+    //         if (avgAntsPerBlock <= minAntsPerBlock){
+    //             spaceRatio = 100;
+    //             populationProgressBar.SetProgress(100);  // Full space
+    // }
+    //         else if (avgAntsPerBlock >= maxAntsPerBlock)
+    // {
+    //             spaceRatio = 0;
+    //             populationProgressBar.SetProgress(0); // No space
+    // }
+    //          else{
+    //             float overuseRatio = (avgAntsPerBlock - minAntsPerBlock) / (maxAntsPerBlock - minAntsPerBlock);
+    //             spaceRatio = Mathf.Clamp01(1f - overuseRatio) * 100f;
+    //             populationProgressBar.SetProgress((int)spaceRatio);
+    //             }
 
-    }
+    // }
 
     public void UpdateSatisfaction(){
 
@@ -636,6 +637,10 @@ public class HexTilemapGenerator : MonoBehaviour
         gameOverPanel.SetActive(true);
         // game over sound
         FindFirstObjectByType<AudioManager>().Pause("Theme");
+        FindFirstObjectByType<AudioManager>().Pause("eggHatching");
+        FindFirstObjectByType<AudioManager>().Pause("foodSound");
+        FindFirstObjectByType<AudioManager>().Pause("waterSound");
+        
         FindFirstObjectByType<AudioManager>().Play("gameOver");
         
         //FindFirstObjectByType<AudioManager>().Resume("Theme");

@@ -855,7 +855,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -26.053955, y: -14.216064}
+  m_AnchoredPosition: {x: -26.053894, y: -14.2161255}
   m_SizeDelta: {x: -971.668, y: -486.26}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &330585543
@@ -2883,6 +2883,12 @@ MonoBehaviour:
     source: {fileID: 0}
   - name: gameOver
     clip: {fileID: 8300000, guid: 4f00312d74c3b43a9862efc04aa10323, type: 3}
+    volume: 1
+    pitch: 0.89
+    loop: 0
+    source: {fileID: 0}
+  - name: eggHatching
+    clip: {fileID: 8300000, guid: 09a916eff341b47069ce1b13d8b0a8c1, type: 3}
     volume: 1
     pitch: 0.89
     loop: 0
@@ -4958,7 +4964,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -28.404053, y: 16.989014}
+  m_AnchoredPosition: {x: -28.403992, y: 16.989014}
   m_SizeDelta: {x: -761.224, y: -405.263}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1267986997
@@ -5717,12 +5723,14 @@ MonoBehaviour:
   stoneNoiseScale: 0.15
   waterThreshold: 0.8
   stoneThreshold: 0.6
+  minedBlockCount: 0
   foodProgressBar: {fileID: 1599538889}
   waterProgressBar: {fileID: 1214806825}
   populationProgressBar: {fileID: 1035950047}
   satisfactionProgressBar: {fileID: 898623935}
-  population: 10
+  population: 100
   antCountText: {fileID: 1817412128}
+  firstMinedBlockPosition: {x: 0, y: 0, z: 0}
   antAI: {fileID: 1815529654}
   gameOverPanel: {fileID: 1549626162}
   gameOverText: {fileID: 751428417}
@@ -7315,7 +7323,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   antSpritePrefab: {fileID: 5072348331939863145, guid: 4055cf1e9a5044712a8c3816cc7c7e7a, type: 3}
-  antCount: 10
+  antAICount: 0
   moveSpeed: 2
   pathPlanningInterval: 0.5
   pathPlanningVariation: 0.3
@@ -7331,7 +7339,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.01, y: 0.01, z: 1}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
