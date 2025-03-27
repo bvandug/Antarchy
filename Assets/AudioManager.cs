@@ -1,8 +1,6 @@
 using System;
 using UnityEngine;
-using UnityEditor.Audio;
-using UnityEditor;
-using SlimUI.ModernMenu;
+
 
 public class AudioManager : MonoBehaviour
 {

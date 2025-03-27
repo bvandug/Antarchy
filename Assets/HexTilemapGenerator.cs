@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 
 public class HexTilemapGenerator : MonoBehaviour
 {
-    private int width = 30;
+    private int width = 28;
     private int height = 300;
     public Tilemap tilemap;
     public TileBase dirtTile, stoneTile, minedTile,
@@ -430,7 +430,7 @@ public class HexTilemapGenerator : MonoBehaviour
                 {
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
-                        tileData.FillLevel += 2f; // Increase fill level
+                        tileData.FillLevel += 10f; // Increase fill level
                         if (tileData.FillLevel <= 50f)
                         {
                             tilemap.SetTile(tilePos, SpawnTile0);
@@ -475,31 +475,62 @@ public class HexTilemapGenerator : MonoBehaviour
                 }
             if (CheckWaterTile(cell))
             {
-                water += tileData.FillLevel;
-                Debug.Log($"Collected {tileData.FillLevel} water from tile {cell}, water = {water} ");
-                tileData.FillLevel = 0;
-                tilemap.SetTile(cell, WaterTile0);
-                tilemap.SetColor(cell, Color.white);
-                FindFirstObjectByType<AudioManager>().Play("waterSound");
-                
+                foreach (var kvp in hexMapData)
+                {
+                    HexTileData tileInfo = kvp.Value;
+                    Vector3Int tilePos = kvp.Key;
+
+                    if (CheckWaterTile(tilePos) && tileInfo.IsActivated)
+                    {
+                        water += tileInfo.FillLevel;
+                        Debug.Log($"Collected {tileInfo.FillLevel} water from tile {tilePos}, water = {water} ");
+                        tileInfo.FillLevel = 0;
+                        tilemap.SetTile(tilePos, WaterTile0);  
+                        
+                    }
+                    FindFirstObjectByType<AudioManager>().Play("waterSound");
+                }
             }
 
             if (CheckFoodTile(cell))
             {
-                food += tileData.FillLevel;
-                Debug.Log($"Collected {tileData.FillLevel} food from tile {cell}, food= {food} ");
-                tileData.FillLevel = 0;
-                tilemap.SetColor(cell, Color.white);
-                FindFirstObjectByType<AudioManager>().Play("foodSound");
+                foreach (var kvp in hexMapData)
+                {
+                    HexTileData tileInfo = kvp.Value;
+                    Vector3Int tilePos = kvp.Key;
+
+                    if (CheckFoodTile(tilePos) && tileInfo.IsActivated)
+                    {
+                        food += tileInfo.FillLevel;
+                        Debug.Log($"Collected {tileInfo.FillLevel} food from tile {tilePos}, food = {water} ");
+                        tileInfo.FillLevel = 0;
+                        tilemap.SetTile(tilePos, FoodTile0);
+
+                    }
+                    FindFirstObjectByType<AudioManager>().Play("foodSound");
+                }
             }
 
             if (CheckSpawnTile(cell))
             {
-                population += tileData.FillLevel;
-                UpdateAntText();
-                Debug.Log($"Spawned {tileData.FillLevel} ants from tile {cell}, food= {food} ");
-                tileData.FillLevel = 0;
-                FindFirstObjectByType<AudioManager>().Play("eggHatching");
+                foreach (var kvp in hexMapData)
+                {
+                    HexTileData tileInfo = kvp.Value;
+                    Vector3Int tilePos = kvp.Key;
+                   
+
+                    if (CheckSpawnTile(tilePos))
+                    {
+                        population += tileInfo.FillLevel;
+                        UpdateAntText();
+                        Debug.Log($"Spawned {tileInfo.FillLevel} ants from tile {tilePos}, food= {food} ");
+                        tileInfo.FillLevel = 0;
+                        tilemap.SetTile(tilePos, SpawnTile0);
+                        
+                    }
+
+                    FindFirstObjectByType<AudioManager>().Play("eggHatching");
+                }
             }
         }
     }
