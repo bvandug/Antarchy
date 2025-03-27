@@ -15,9 +15,11 @@ public class AntAI : MonoBehaviour
     private HexTilemapGenerator mapGenerator;
 
 // Population count from HexTileMapGen
-    private float population; 
-    private float minedBlockCount;
+    private int population; 
+    public float minedBlockCount;
     private Vector3Int spawnPosition;
+private int previousMinedBlockCount = 0;  // Track previous mined block count
+private double antsPerMinedBlock = 0.5;  // Adjustable spawn ratio
     
     [Header("Movement Settings")]
     public float moveSpeed = 2f;
@@ -46,7 +48,7 @@ public class AntAI : MonoBehaviour
     {
         mapGenerator = FindFirstObjectByType<HexTilemapGenerator>();
         tilemap = mapGenerator.tilemap;
-        population = mapGenerator.population;
+        population = (int)mapGenerator.population;
         minedBlockCount = mapGenerator.minedBlockCount;
         
     }
@@ -61,7 +63,7 @@ public class AntAI : MonoBehaviour
         occupiedCells[cellPosition] = new List<int>();
         
         // Spawn multiple ants
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 1; i++)
         {
             // Create ant with slight position variation
             Vector3 spawnPosition = worldPosition + new Vector3(
@@ -118,6 +120,18 @@ public class AntAI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        minedBlockCount = mapGenerator.minedBlockCount;
+        population = (int)mapGenerator.population;
+         // Check if more blocks have been mined
+        if (minedBlockCount > previousMinedBlockCount)
+        {
+            int newAntsToSpawn = (int)((minedBlockCount - previousMinedBlockCount) * antsPerMinedBlock);
+            SpawnAdditionalAnts(newAntsToSpawn);
+            if (newAntsToSpawn >= 1) {
+                previousMinedBlockCount = (int)minedBlockCount; // Update the tracked value
+            }
+        }
+
         // Move all ants according to their paths and velocities
         for (int i = 0; i < antInstances.Count; i++)
         {
@@ -128,9 +142,87 @@ public class AntAI : MonoBehaviour
                 StartCoroutine(MoveAntToCell(i, nextCell));
             }
         }
+        // Check if the number of ants exceeds the population
+    int excessAnts = antInstances.Count - population;
+    // if (excessAnts > 0)
+    // {
+    //     RemoveAnts(excessAnts);
+    // }
         
     }
-    
+    void SpawnAdditionalAnts(int antCount)
+{
+    if (spawnPosition == null) return;
+
+    Vector3 worldPosition = tilemap.GetCellCenterWorld(spawnPosition);
+
+    for (int i = 0; i < antCount; i++)
+    {
+        Vector3 spawnPos = worldPosition + new Vector3(
+            Random.Range(-0.1f, 0.1f),
+            Random.Range(-0.1f, 0.1f),
+            0
+        );
+
+        GameObject ant = Instantiate(antSpritePrefab, spawnPos, Quaternion.identity);
+        ant.name = "Ant_" + (antInstances.Count + i);
+        ant.transform.parent = this.transform;
+
+        antInstances.Add(ant);
+        currentCells.Add(spawnPosition);
+        isMoving.Add(false);
+        velocities.Add(Vector3.zero);
+        antPaths.Add(new Queue<Vector3Int>());
+
+        if (!occupiedCells.ContainsKey(spawnPosition))
+        {
+            occupiedCells[spawnPosition] = new List<int>();
+        }
+        occupiedCells[spawnPosition].Add(antInstances.Count - 1);
+        RecordVisit(spawnPosition);
+
+        StartCoroutine(PlanAntPath(antInstances.Count - 1, Random.Range(0f, 1f)));
+    }
+}
+
+// void RemoveAnts(int numToRemove)
+// {
+//     int numRemoved = 0;
+
+//     while (numRemoved < numToRemove && antInstances.Count > 0)
+//     {
+//         int lastIndex = antInstances.Count - 1; // Always remove the last element
+
+//         Debug.Log($"Removing ant at index: {lastIndex}, Total ants: {antInstances.Count}");
+
+//         // Destroy the ant GameObject
+//         Destroy(antInstances[lastIndex]);
+
+//         // Get the cell position before removal
+//         Vector3Int cellPosition = currentCells[lastIndex];
+
+//         // Remove from all lists
+//         antInstances.RemoveAt(lastIndex);
+//         currentCells.RemoveAt(lastIndex);
+//         isMoving.RemoveAt(lastIndex);
+//         velocities.RemoveAt(lastIndex);
+//         antPaths.RemoveAt(lastIndex);
+
+//         // Ensure occupiedCells is updated correctly
+//         if (occupiedCells.ContainsKey(cellPosition))
+//         {
+//             occupiedCells[cellPosition].Remove(lastIndex);
+//             if (occupiedCells[cellPosition].Count == 0)
+//             {
+//                 occupiedCells.Remove(cellPosition);
+//             }
+//         }
+
+//         numRemoved++;
+//     }
+
+//     Debug.Log($"Successfully removed {numRemoved} ants.");
+// }
     IEnumerator PlanAntPath(int antIndex, float initialDelay)
     {
         // Initial delay to stagger ant movement
@@ -267,105 +359,87 @@ public class AntAI : MonoBehaviour
     }
     
     IEnumerator MoveAntToCell(int antIndex, Vector3Int targetCell)
+{
+    isMoving[antIndex] = true;
+    
+    Vector3Int currentCell = currentCells[antIndex];
+    
+    occupiedCells[currentCell].Remove(antIndex);
+    
+    if (!occupiedCells.ContainsKey(targetCell))
     {
-        isMoving[antIndex] = true;
-        
-        Vector3Int currentCell = currentCells[antIndex];
-        
-        // Update cell occupation tracking
-        occupiedCells[currentCell].Remove(antIndex);
-        
-        if (!occupiedCells.ContainsKey(targetCell))
-        {
-            occupiedCells[targetCell] = new List<int>();
-        }
-        
-        Vector3 startPosition = antInstances[antIndex].transform.position;
-        Vector3 targetPosition = tilemap.GetCellCenterWorld(targetCell);
-        
-        // Calculate direction for rotation
-        Vector3 direction = targetPosition - startPosition;
-        
-        // Apply slight variation to target position for more natural movement
-        targetPosition += new Vector3(
-            Random.Range(-0.05f, 0.05f),
-            Random.Range(-0.05f, 0.05f),
-            0
+        occupiedCells[targetCell] = new List<int>();
+    }
+    
+    Vector3 startPosition = antInstances[antIndex].transform.position;
+    Vector3 targetPosition = tilemap.GetCellCenterWorld(targetCell);
+    
+    Vector3 direction = targetPosition - startPosition;
+    
+    targetPosition += new Vector3(
+        Random.Range(-0.05f, 0.05f),
+        Random.Range(-0.05f, 0.05f),
+        0
+    );
+    
+    Vector3 currentVelocity = velocities[antIndex];
+    
+    float smoothTime = 0.1f * (1 - turnSmoothness);
+    
+    while (Vector3.Distance(antInstances[antIndex].transform.position, targetPosition) > 0.01f)
+    {
+        antInstances[antIndex].transform.position = Vector3.SmoothDamp(
+            antInstances[antIndex].transform.position,
+            targetPosition,
+            ref currentVelocity,
+            smoothTime,
+            moveSpeed
         );
         
-        // Get a temporary reference to the velocity for this ant
-        Vector3 currentVelocity = velocities[antIndex];
+        velocities[antIndex] = currentVelocity;
         
-        float smoothTime = 0.1f * (1 - turnSmoothness);
-        
-        while (Vector3.Distance(antInstances[antIndex].transform.position, targetPosition) > 0.01f)
+        if (direction.sqrMagnitude > 0.01f)
         {
-            // Use SmoothDamp with our velocity reference
-            antInstances[antIndex].transform.position = Vector3.SmoothDamp(
-                antInstances[antIndex].transform.position,
-                targetPosition,
-                ref currentVelocity,
-                smoothTime,
-                moveSpeed
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            
+            angle += -180f;
+            
+            Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
+            antInstances[antIndex].transform.rotation = Quaternion.Slerp(
+                antInstances[antIndex].transform.rotation,
+                targetRotation,
+                10f * Time.deltaTime
             );
-            
-            // Store back the updated velocity
-            velocities[antIndex] = currentVelocity;
-            
-            // Rotate to move perpendicular to direction (as if walking on walls)
-            // By adding 90 degrees, we make ants walk along the walls instead of forward
-            if (direction.sqrMagnitude > 0.01f)
-            {
-                // Original angle calculation (forward direction) + 90 degrees offset
-                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                
-                // Add 90 degrees to make the ant perpendicular to movement direction
-                // and make it look like it's walking on walls
-                angle += -180f;
-                
-                // Optionally, randomly choose between +90 and -90 degrees for different ants 
-                // to appear on either side of the tunnel
-                
-                
-                Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
-                antInstances[antIndex].transform.rotation = Quaternion.Slerp(
-                    antInstances[antIndex].transform.rotation,
-                    targetRotation,
-                    10f * Time.deltaTime
-                );
-            }
-            
-            yield return null;
         }
         
-        // Update current cell
-        currentCells[antIndex] = targetCell;
-        
-        // Update occupation tracking
-        occupiedCells[targetCell].Add(antIndex);
-        
-        // Remove from target cells
-        if (targetCells.ContainsKey(targetCell) && targetCells[targetCell].Contains(antIndex))
+        yield return null;
+    }
+    
+    currentCells[antIndex] = targetCell;
+    
+    occupiedCells[targetCell].Add(antIndex);
+    
+    if (targetCells.ContainsKey(targetCell) && targetCells[targetCell].Contains(antIndex))
+    {
+        targetCells[targetCell].Remove(antIndex);
+    }
+    
+    RecordVisit(targetCell);
+    
+    isMoving[antIndex] = false;
+    
+    if (antPaths[antIndex].Count > 0)
+    {
+        Vector3Int nextCell = antPaths[antIndex].Peek();
+        if (IsCellSafe(nextCell))
         {
-            targetCells[targetCell].Remove(antIndex);
-        }
-        
-        // Record this visit
-        RecordVisit(targetCell);
-        
-        isMoving[antIndex] = false;
-        
-        // If we have more path steps and the next tunnel is clear, start moving immediately
-        if (antPaths[antIndex].Count > 0)
-        {
-            Vector3Int nextCell = antPaths[antIndex].Peek();
-            if (IsCellSafe(nextCell))
-            {
-                nextCell = antPaths[antIndex].Dequeue();
-                StartCoroutine(MoveAntToCell(antIndex, nextCell));
-            }
+            nextCell = antPaths[antIndex].Dequeue();
+            StartCoroutine(MoveAntToCell(antIndex, nextCell));
         }
     }
+}
+
+
     
     bool IsCellSafe(Vector3Int cell)
     {
