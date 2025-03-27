@@ -514,7 +514,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.41352752, b: 0, a: 1}
+  m_Color: {r: 0.8156863, g: 0.13333334, b: 0.011764706, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2958,7 +2958,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.48595762, g: 0, b: 1, a: 1}
+  m_Color: {r: 0.20784314, g: 0.45882353, b: 0.21176471, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4488,7 +4488,7 @@ MonoBehaviour:
   mask: {fileID: 169467675}
   fillImage: {fileID: 748041816}
   lowColor: {r: 1, g: 0, b: 0.02849722, a: 1}
-  normalColor: {r: 0.48595762, g: 0, b: 1, a: 1}
+  normalColor: {r: 0.20784314, g: 0.45882353, b: 0.21176471, a: 1}
   lowThreshold: 0.4
   minimum: 0
 --- !u!114 &1035950048
@@ -6441,7 +6441,7 @@ MonoBehaviour:
   mask: {fileID: 468908993}
   fillImage: {fileID: 113990073}
   lowColor: {r: 1, g: 0, b: 0, a: 1}
-  normalColor: {r: 1, g: 0.41352752, b: 0, a: 1}
+  normalColor: {r: 0.8156863, g: 0.13333334, b: 0.011764706, a: 1}
   lowThreshold: 0.4
   minimum: 0
 --- !u!114 &1599538890
@@ -7324,6 +7324,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   antSpritePrefab: {fileID: 5072348331939863145, guid: 4055cf1e9a5044712a8c3816cc7c7e7a, type: 3}
   antAICount: 0
+  minedBlockCount: 0
   moveSpeed: 2
   pathPlanningInterval: 0.5
   pathPlanningVariation: 0.3
