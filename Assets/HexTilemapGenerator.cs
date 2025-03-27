@@ -620,6 +620,7 @@ public class HexTilemapGenerator : MonoBehaviour
         satisfactionProgressBar.SetProgress((int)satisfactionRatio);
 
         if (satisfactionRatio < 40 && !gameOverTriggered){
+            
 
             TriggerGameOver("Satisfaction too low, the colony killed you!");
             Debug.Log("Game Over: Satisfaction too low!");

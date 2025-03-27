@@ -855,7 +855,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -26.053955, y: -14.216003}
+  m_AnchoredPosition: {x: -26.053955, y: -14.216064}
   m_SizeDelta: {x: -971.668, y: -486.26}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &330585543
@@ -2866,6 +2866,24 @@ MonoBehaviour:
   - name: DigTunnel
     clip: {fileID: 8300000, guid: e1a21bb7113b14e9c8a9660ca4568ae4, type: 3}
     volume: 0.701
+    pitch: 0.89
+    loop: 0
+    source: {fileID: 0}
+  - name: waterSound
+    clip: {fileID: 8300000, guid: 8afda798eabf642f0a963582fe576bcb, type: 3}
+    volume: 1
+    pitch: 0.89
+    loop: 0
+    source: {fileID: 0}
+  - name: foodSound
+    clip: {fileID: 8300000, guid: 3527fb0d4081e4ee5a1a18e564b98a8b, type: 3}
+    volume: 1
+    pitch: 0.89
+    loop: 0
+    source: {fileID: 0}
+  - name: gameOver
+    clip: {fileID: 8300000, guid: 4f00312d74c3b43a9862efc04aa10323, type: 3}
+    volume: 1
     pitch: 0.89
     loop: 0
     source: {fileID: 0}
@@ -6033,6 +6051,8 @@ MonoBehaviour:
   gameOver: 0
   populationNeeded: {fileID: 1702826309}
   attackInfo: {fileID: 1391693528}
+  remainingPopulation: {fileID: 0}
+  attackDamage: {fileID: 0}
 --- !u!4 &1503367448
 Transform:
   m_ObjectHideFlags: 0
