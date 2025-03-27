@@ -1,4 +1,4 @@
-susing UnityEngine;
+using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class HexTileData

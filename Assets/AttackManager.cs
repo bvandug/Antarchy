@@ -107,7 +107,7 @@ public class AttackManager : MonoBehaviour
             HexTileData tileData = kvp.Value;
 
         
-            if (tileData.Tile == mapGenerator.foodTile && tileData.IsActivated)
+            if (tileData.Tile == mapGenerator.FoodTile100 && tileData.IsActivated)
             {
                 tileData.FillLevel = 0; // Reset FillLevel
                 Debug.Log($"Food tile at {kvp.Key} FillLevel set to 0.");
@@ -135,7 +135,7 @@ public class AttackManager : MonoBehaviour
             HexTileData tileData = kvp.Value;
 
         // Check if it's an active spawn tile
-            if (tileData.Tile == mapGenerator.spawnTile && tileData.IsActivated)
+            if (tileData.Tile == mapGenerator.SpawnTile100 && tileData.IsActivated)
             {
                 tileData.FillLevel = 0; // Reset FillLevel
                 Debug.Log($"Spawn tile at {kvp.Key} FillLevel set to 0.");
@@ -152,7 +152,7 @@ public class AttackManager : MonoBehaviour
             HexTileData tileData = kvp.Value;
 
         // Check if it's an active spawn tile
-            if (tileData.Tile == mapGenerator.waterTile && tileData.IsActivated)
+            if (tileData.Tile == mapGenerator.WaterTile100 && tileData.IsActivated)
             {
                 tileData.FillLevel = 0; // Reset FillLevel
                 Debug.Log($"Water tile at {kvp.Key} FillLevel set to 0.");
@@ -170,7 +170,7 @@ public class AttackManager : MonoBehaviour
         HexTileData tileData = kvp.Value;
 
         // Disable all water, food, and spawn tiles
-        if (tileData.Tile == mapGenerator.waterTile || tileData.Tile == mapGenerator.foodTile )
+        if (tileData.Tile == mapGenerator.WaterTile100 || tileData.Tile == mapGenerator.FoodTile100 )
         {
             tileData.IsDisabled = true; // Mark as disabled
             Debug.Log($"Tile at {kvp.Key} is now disabled.");
