@@ -30,9 +30,9 @@ public class HexTilemapGenerator : MonoBehaviour
 
     public Dictionary<Vector3Int, HexTileData> hexMapData = new Dictionary<Vector3Int, HexTileData>();
 
-    public float population = 100;
-    private float food = 10000;
-    private float water = 20000;
+    public float population = 10;
+    private float food = 1000;
+    private float water = 2000;
     public TextMeshProUGUI antCountText;
 
     private int waterGenerator = 0;

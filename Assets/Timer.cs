@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 public class Timer : MonoBehaviour
 {
@@ -9,10 +10,12 @@ public class Timer : MonoBehaviour
     [SerializeField] Color normalColor = Color.white;
     [SerializeField] Color warningColor = Color.red;
     float elapsedTime;
-    float levelTime = 1000;
+    float levelTime = 60;
     float remainingTime;
     public GameObject timeUpPanel;
     private bool isPaused = false;
+    private Coroutine flashCoroutine;
+    private bool isFlashing = false;
 
     //Here is the AttackManager
     private AttackManager attackManager;
@@ -38,6 +41,11 @@ public class Timer : MonoBehaviour
             }
             
             
+        }else if (remainingTime < 30){
+            timerText.color = warningColor;
+            if (!isFlashing){
+                flashCoroutine = StartCoroutine(FlashText());
+            }
         }
 
         int minutes = Mathf.FloorToInt(remainingTime / 60);
@@ -51,6 +59,7 @@ public class Timer : MonoBehaviour
     private void ResetTimer(){
         elapsedTime = 0;
         remainingTime = levelTime;
+        timerText.color = normalColor;
     }
     private void ShowTimeUpPanel(){
         isPaused = true;
@@ -66,6 +75,19 @@ public class Timer : MonoBehaviour
         timeUpPanel.SetActive(false);
         Time.timeScale = 1f; // Resume if you paused it
 }
+
+    private IEnumerator FlashText(){
+        isFlashing = true;
+         while (remainingTime > 0 && remainingTime < 30)
+            {
+        timerText.enabled = !timerText.enabled;
+        yield return new WaitForSeconds(1f);
+            }
+        timerText.enabled = true;
+        isFlashing = false;
+
+
+    }
 
 
 }

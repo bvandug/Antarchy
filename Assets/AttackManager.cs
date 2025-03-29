@@ -15,16 +15,18 @@ public class AttackManager : MonoBehaviour
     private int nextAntsKilled;
 
     public TextMeshProUGUI populationNeeded;
-    public TextMeshProUGUI attackInfo;
+    public TextMeshProUGUI attackerName;
     public TextMeshProUGUI remainingPopulation;
     public TextMeshProUGUI attackDamage;
+    public TextMeshProUGUI attackHint;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        DecideNextAttack();
        mapGenerator = FindFirstObjectByType<HexTilemapGenerator>(); 
        tilemap = mapGenerator.tilemap;
-       DecideNextAttack();
+       
 
     }
 
@@ -33,7 +35,8 @@ public class AttackManager : MonoBehaviour
         nextAntsKilled = 5*attackCount*attackCount;
         populationNeeded.text = string.Format("Population Needed: "+ nextAntsKilled + " ants");
         nextAttackType = UnityEngine.Random.Range(1, 6);
-        attackInfo.text = string.Format("Next Attacker: "+ GetAttackName(nextAttackType)+" "+ GetAttackDamage(nextAttackType));
+        attackerName.text = string.Format("Next Attacker: "+ GetAttackName(nextAttackType));
+        attackHint.text = string.Format("Hint: "+ GetAttackDamage(nextAttackType));
 
     }
 
@@ -78,7 +81,7 @@ public class AttackManager : MonoBehaviour
             case 2: return "The Ant Eater";
             case 3: return "The Spider";
             case 4: return "The Lizard";
-            case 5: return "The Terminator";
+            case 5: return "The Exterminator";
             default: return "Unknown Attack";
         }
     }
@@ -87,11 +90,11 @@ public class AttackManager : MonoBehaviour
     {
         switch (attackType)
         {
-            case 1: return "Gets hungry";
-            case 2: return "Loves the taste of Ants ";
-            case 3: return "Loves the taste of Eggs";
-            case 4: return "Gets thirsty";
-            case 5: return "Has poison on hand";
+            case 1: return "Termites follow the same diet";
+            case 2: return "The Anteater is feeling hungry ";
+            case 3: return "Loves the taste of eggs";
+            case 4: return "The Lizard is feeling thirsty";
+            case 5: return "The Exterminator has poison on hand";
             default: return "Unknown Attack";
         }
     }
@@ -101,7 +104,7 @@ public class AttackManager : MonoBehaviour
 
     void termiteAttack() 
     {
-        attackDamage.text = string.Format("The Termite ate all your food from your food supplies");
+        attackDamage.text = string.Format("The Termite ate all the food from your food supplies");
         foreach (var kvp in mapGenerator.hexMapData)
     {
             HexTileData tileData = kvp.Value;
@@ -146,7 +149,7 @@ public class AttackManager : MonoBehaviour
 
     void lizardAttack()
     {
-        attackDamage.text = string.Format("The Lizard drank all your water from your water supplies");
+        attackDamage.text = string.Format("The Lizard drank all the water from your water supplies");
         Debug.Log("Attack4");
         foreach (var kvp in mapGenerator.hexMapData)
     {
@@ -165,7 +168,7 @@ public class AttackManager : MonoBehaviour
 
     void terminatorAttack()
     {
-        attackDamage.text = string.Format("The Exterminator poisened your food and water for the next 10 seconds");
+        attackDamage.text = string.Format("The Exterminator poisoned your food and water for the next 10 seconds");
         Debug.Log("Attack6");
         foreach (var kvp in mapGenerator.hexMapData)
     {
