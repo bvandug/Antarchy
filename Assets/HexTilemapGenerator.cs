@@ -682,6 +682,9 @@ public class HexTilemapGenerator : MonoBehaviour
         if (antCountText != null){
            antCountText.text = population.ToString(); 
         }
+        if (population == 0){
+            TriggerGameOver("Your population died out!");
+        }
     }
 
 
