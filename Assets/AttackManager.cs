@@ -18,7 +18,7 @@ public class AttackManager : MonoBehaviour
     public TextMeshProUGUI attackInfo;
     public TextMeshProUGUI remainingPopulation;
     public TextMeshProUGUI attackDamage;
-
+    public TileBase toxic;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -30,9 +30,21 @@ public class AttackManager : MonoBehaviour
 
     public void DecideNextAttack(){
         attackCount++;
-        nextAntsKilled = 5*attackCount*attackCount;
+        if (attackCount == 1) {
+            nextAntsKilled = 25;
+            nextAttackType = 5;
+        }if (attackCount == 2)
+        {
+            nextAntsKilled = 50;
+            nextAttackType = 5;
+        }
+        else
+        {
+            nextAntsKilled = 1 * attackCount * attackCount;
+            nextAttackType = UnityEngine.Random.Range(1, 6);
+        }
         populationNeeded.text = string.Format("Population Needed: "+ nextAntsKilled + " ants");
-        nextAttackType = UnityEngine.Random.Range(1, 6);
+        
         attackInfo.text = string.Format("Next Attacker: "+ GetAttackName(nextAttackType)+" "+ GetAttackDamage(nextAttackType));
 
     }
@@ -62,7 +74,7 @@ public class AttackManager : MonoBehaviour
     private void TriggerAttack(int attackType){
         switch (attackType)
         {
-            case 1: termiteAttack(); break;
+            case 1: break;
             case 2: antEaterAttack(); break;
             case 3: spiderAttack(); break;
             case 4: lizardAttack(); break;
@@ -98,7 +110,7 @@ public class AttackManager : MonoBehaviour
 
 
     
-
+    /*
     void termiteAttack() 
     {
         attackDamage.text = string.Format("The Termite ate all your food from your food supplies");
@@ -115,7 +127,7 @@ public class AttackManager : MonoBehaviour
 
 
         Debug.Log("Attack1");
-    }
+    }*/
 
     void antEaterAttack()
     {
@@ -173,10 +185,11 @@ public class AttackManager : MonoBehaviour
         Vector3Int TilePos = kvp.Key;
 
         // Disable all water, food, and spawn tiles
-        if (mapGenerator.CheckWaterTile(TilePos) || mapGenerator.CheckFoodTile(TilePos ))
+        if (mapGenerator.CheckWaterTile(TilePos) && tileData.IsActivated || mapGenerator.CheckFoodTile(TilePos ) && tileData.IsActivated)
 
         {
             tileData.IsDisabled = true; // Mark as disabled
+            tilemap.SetTile(TilePos, toxic);
             Debug.Log($"Tile at {kvp.Key} is now disabled.");
         }
     }

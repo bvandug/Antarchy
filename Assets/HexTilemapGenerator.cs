@@ -31,8 +31,8 @@ public class HexTilemapGenerator : MonoBehaviour
     public Dictionary<Vector3Int, HexTileData> hexMapData = new Dictionary<Vector3Int, HexTileData>();
 
     public float population = 100;
-    private float food = 10000;
-    private float water = 20000;
+    private float food = 1000;
+    private float water = 2000;
     public TextMeshProUGUI antCountText;
 
     private int waterGenerator = 0;
@@ -360,7 +360,7 @@ public class HexTilemapGenerator : MonoBehaviour
                 HexTileData tileData = kvp.Value;
                 Vector3Int tilePos = kvp.Key;
 
-                if (CheckWaterTile(tilePos) && tileData.IsActivated)
+                if (CheckWaterTile(tilePos) && tileData.IsActivated && !tileData.IsDisabled)
                 {
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
@@ -393,7 +393,7 @@ public class HexTilemapGenerator : MonoBehaviour
 
                     }
                 }
-                if (CheckFoodTile(tilePos) && tileData.IsActivated)
+                if (CheckFoodTile(tilePos) && tileData.IsActivated && !tileData.IsDisabled)
                 {
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
@@ -426,11 +426,11 @@ public class HexTilemapGenerator : MonoBehaviour
 
                     }
                 }
-                if (CheckSpawnTile(tilePos) && tileData.IsActivated)
+                if (CheckSpawnTile(tilePos) && tileData.IsActivated && !tileData.IsDisabled)
                 {
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
-                        tileData.FillLevel += 10f; // Increase fill level
+                        tileData.FillLevel += 5f; // Increase fill level
                         if (tileData.FillLevel <= 50f)
                         {
                             tilemap.SetTile(tilePos, SpawnTile0);
