@@ -161,7 +161,6 @@ public class HexTilemapGenerator : MonoBehaviour
     }
 
 
-
     void GenerateDemo(int seed =1)
     {
         tilemap.ClearAllTiles();

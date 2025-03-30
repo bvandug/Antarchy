@@ -6744,7 +6744,7 @@ MonoBehaviour:
   remainingPopulation: {fileID: 1517414295}
   attackDamage: {fileID: 573340797}
   attackHint: {fileID: 1715505331}
-  toxic: {fileID: 0}
+  toxic: {fileID: 11400000, guid: 2befec0306ea3af49a2bb73fd329336a, type: 2}
 --- !u!4 &1503367448
 Transform:
   m_ObjectHideFlags: 0
