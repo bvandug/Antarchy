@@ -33,7 +33,7 @@ public class TileTooltip : MonoBehaviour
         Vector3Int cellPos = generator.tilemap.WorldToCell(worldPos);
         
 
-        if (generator.hexMapData.TryGetValue(cellPos, out HexTileData tileData))
+        if (generator.hexMapData.TryGetValue(cellPos, out HexTileData tileData)) 
         {
             int cost = generator.GetMiningCost(cellPos);
             tooltipPanel.SetActive(true);

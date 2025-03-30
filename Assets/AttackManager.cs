@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -19,13 +20,16 @@ public class AttackManager : MonoBehaviour
     public TextMeshProUGUI remainingPopulation;
     public TextMeshProUGUI attackDamage;
     public TextMeshProUGUI attackHint;
-
+    private List<int> availableNumbers;
+    private int previousNumber = -1;
+    private int currentNumber = -1;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        ResetAvailableNumbers();
         DecideNextAttack();
-       mapGenerator = FindFirstObjectByType<HexTilemapGenerator>(); 
-       tilemap = mapGenerator.tilemap;
+        mapGenerator = FindFirstObjectByType<HexTilemapGenerator>(); 
+        tilemap = mapGenerator.tilemap;
        
 
     }
@@ -34,7 +38,7 @@ public class AttackManager : MonoBehaviour
         attackCount++;
         nextAntsKilled = 5*attackCount*attackCount;
         populationNeeded.text = string.Format("Population Needed: "+ nextAntsKilled + " ants");
-        nextAttackType = UnityEngine.Random.Range(1, 6);
+        nextAttackType = GetNextNumber();
         attackerName.text = string.Format("Next Attacker: "+ GetAttackName(nextAttackType));
         attackHint.text = string.Format("Hint: "+ GetAttackDamage(nextAttackType));
 
@@ -44,7 +48,7 @@ public class AttackManager : MonoBehaviour
         if (gameOver) return;
         TriggerAttack(nextAttackType);
 
-        if(nextAntsKilled > mapGenerator.population){
+        if(nextAntsKilled >= mapGenerator.population){
             Debug.Log("Not enough ants, Game Over");
             gameOver = true;
             mapGenerator.TriggerGameOver("Not enough ants to withstand attack!");
@@ -205,7 +209,52 @@ private IEnumerator ReenableResourceTiles()
 
     Debug.Log("Exterminator Attack is over! You can use resources again.");
 }
+
+
+public int GetNextNumber()
+    {
+        // If we've used all numbers, reset the pool
+        if (availableNumbers.Count == 0)
+        {
+            ResetAvailableNumbers();
+            
+            // Make sure we don't pick the same number twice in a row
+            // when starting a new cycle
+            if (availableNumbers.Contains(previousNumber))
+            {
+                availableNumbers.Remove(previousNumber);
+                
+                // Edge case: if we removed the last number, add it back
+                // and just accept the repeat (can't avoid it with only 1 number)
+                if (availableNumbers.Count == 0)
+                {
+                    availableNumbers.Add(previousNumber);
+                }
+            }
+        }
+        
+        // Get random index from remaining available numbers
+        int randomIndex = UnityEngine.Random.Range(0, availableNumbers.Count);
+        
+        // Get the number at that index
+        currentNumber = availableNumbers[randomIndex];
+        
+        // Remove the used number from the pool
+        availableNumbers.RemoveAt(randomIndex);
+        
+        // Update previous number
+        previousNumber = currentNumber;
+        
+        return currentNumber;
     }
+    private void ResetAvailableNumbers()
+    {
+        // Refill the pool with numbers 1-5
+        availableNumbers = new List<int> { 1, 2, 3, 4, 5 };
+    }
+    }
+
+
 
 
     

@@ -53,6 +53,7 @@ public class HexTilemapGenerator : MonoBehaviour
     float satisfactionRatio = 100;
 
     public GameObject gameOverPanel;
+    public GameObject cannotMinePanel;
     public TextMeshProUGUI gameOverText;
     private bool gameOverTriggered = false;
     
@@ -60,6 +61,7 @@ public class HexTilemapGenerator : MonoBehaviour
     void Start()
     {
         gameOverPanel.SetActive(false);
+        cannotMinePanel.SetActive(false);
         seed = UnityEngine.Random.Range(0, 10000);
         GenerateMap(seed);
         StartCoroutine(FillGenerators());
@@ -188,7 +190,12 @@ public class HexTilemapGenerator : MonoBehaviour
 
         if (tilemap.HasTile(mouseCell) && CanMineTile(mouseCell))
         {
-            if (population >= costToMine)
+            if (population == costToMine){
+                cannotMinePanel.SetActive(true);
+
+
+            }
+            else if (population > costToMine)
             {
                 population -= costToMine;
                 Debug.Log($"Mining cost {costToMine}. Your new population is {population}");
@@ -230,7 +237,7 @@ public class HexTilemapGenerator : MonoBehaviour
             return baseCost + ((Mathf.Abs(mouseCell.y) / 10) * increasePerStep);
     }
 
-    bool CanMineTile(Vector3Int cell)
+    public bool CanMineTile(Vector3Int cell)
     {
         if (!hexMapData.TryGetValue(cell, out HexTileData tileData ))
             return false; // No tile present
@@ -681,9 +688,6 @@ public class HexTilemapGenerator : MonoBehaviour
     public void UpdateAntText(){
         if (antCountText != null){
            antCountText.text = population.ToString(); 
-        }
-        if (population == 0){
-            TriggerGameOver("Your population died out!");
         }
     }
 
