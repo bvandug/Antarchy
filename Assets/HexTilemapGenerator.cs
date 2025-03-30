@@ -6,6 +6,8 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
+using System.Threading.Tasks;
+
 
 public class HexTilemapGenerator : MonoBehaviour
 {
@@ -14,7 +16,8 @@ public class HexTilemapGenerator : MonoBehaviour
     public Tilemap tilemap;
     public TileBase dirtTile, stoneTile, minedTile,
         WaterTile0, WaterTile25, WaterTile50, WaterTile75, WaterTile100,
-        FoodTile0, FoodTile25, FoodTile50, FoodTile75, FoodTile100, 
+        FoodTile0, FoodTile25, FoodTile50, FoodTile75, FoodTile100,
+        CrackTile1, CrackTile2, CrackTile3,
         SpawnTile0, SpawnTile25, SpawnTile50, SpawnTile75, SpawnTile100;
 
     public float noiseScale = 0.3f; // Lower for bigger clusters
@@ -229,36 +232,36 @@ public class HexTilemapGenerator : MonoBehaviour
 
     void MineBlock(Vector3Int mouseCell)
     {
-        
         int costToMine = GetMiningCost(mouseCell);
 
         if (tilemap.HasTile(mouseCell) && CanMineTile(mouseCell))
         {
-            if (population == costToMine){
+            if (population == costToMine)
+            {
                 cannotMinePanel.SetActive(true);
-
-
             }
             else if (population > costToMine)
             {
                 population -= costToMine;
                 Debug.Log($"Mining cost {costToMine}. Your new population is {population}");
 
-                tilemap.SetTile(mouseCell, minedTile); // Set mined tile
+                // Start the tile mining animation with delays
+                StartCoroutine(MineTileWithDelay(mouseCell));
+
                 hexMapData[mouseCell].Tile = minedTile; // Update dictionary
                 minedBlockCount++;
                 CheckResourceTile(mouseCell);
                 FindFirstObjectByType<AudioManager>().Play("DigTunnel");
 
-                // Check if the mined tile causes a flood
+                // Check for flooding
                 Vector3Int[] floodNeighbors = getFloodNeighbors(mouseCell);
-                foreach (Vector3Int floodNeighbor in floodNeighbors) 
+                foreach (Vector3Int floodNeighbor in floodNeighbors)
                 {
                     if (hexMapData.TryGetValue(floodNeighbor, out HexTileData neighborTile))
                     {
-                        if(CheckWaterTile(floodNeighbor))
+                        if (CheckWaterTile(floodNeighbor))
                         {
-                            tilemap.SetTile(floodNeighbor, dirtTile); //destroy water tile
+                            tilemap.SetTile(floodNeighbor, dirtTile); // Destroy water tile
                             hexMapData[floodNeighbor].Tile = stoneTile; // Update dictionary
                             floodTiles(mouseCell);
                         }
@@ -279,7 +282,23 @@ public class HexTilemapGenerator : MonoBehaviour
             }
         }
     }
-            
+
+    // Coroutine for delayed tile updates
+    private IEnumerator MineTileWithDelay(Vector3Int mouseCell)
+    {
+        tilemap.SetTile(mouseCell, CrackTile1);
+        yield return new WaitForSeconds(0.2f);
+
+        tilemap.SetTile(mouseCell, CrackTile2);
+        yield return new WaitForSeconds(0.2f);
+
+        tilemap.SetTile(mouseCell, CrackTile3);
+        yield return new WaitForSeconds(0.2f);
+
+        tilemap.SetTile(mouseCell, minedTile);
+    }
+
+
     // This method returns the neighboring tiles that can cause a flood
     public Vector3Int[] getFloodNeighbors(Vector3Int cell)
     {
