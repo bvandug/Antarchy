@@ -6383,6 +6383,9 @@ MonoBehaviour:
   FoodTile50: {fileID: 11400000, guid: 9c0f069cce46cd24ca43a4d67bf137b5, type: 2}
   FoodTile75: {fileID: 11400000, guid: 223ee73c89c3e6840bfb827af5ceb473, type: 2}
   FoodTile100: {fileID: 11400000, guid: b85519fbf882f1b4ea5fd45700b111da, type: 2}
+  CrackTile1: {fileID: 11400000, guid: 5dfef610d8baf03458b9688be777eb7f, type: 2}
+  CrackTile2: {fileID: 11400000, guid: a8f8632b3ee537248a5a4c1f986475e6, type: 2}
+  CrackTile3: {fileID: 11400000, guid: 6a65df4fca23e4449b868c0fbdf6ef70, type: 2}
   SpawnTile0: {fileID: 11400000, guid: 45f696b4332e93a4ca3656c86ecb85a2, type: 2}
   SpawnTile25: {fileID: 11400000, guid: a89d1448f67e4534aa80915a48018a1d, type: 2}
   SpawnTile50: {fileID: 11400000, guid: 462a0a53b804b0e449ca783281c2b461, type: 2}
@@ -6733,6 +6736,7 @@ MonoBehaviour:
   remainingPopulation: {fileID: 1517414295}
   attackDamage: {fileID: 573340797}
   attackHint: {fileID: 1715505331}
+  toxic: {fileID: 0}
 --- !u!4 &1503367448
 Transform:
   m_ObjectHideFlags: 0
@@ -8485,10 +8489,9 @@ MonoBehaviour:
   antAICount: 0
   minedBlockCount: 0
   moveSpeed: 2
-  pathPlanningInterval: 0.5
-  pathPlanningVariation: 0.3
+  moveInterval: 0.5
+  moveIntervalVariation: 0.3
   turnSmoothness: 0.5
-  maxPathLength: 10
 --- !u!4 &1815529655
 Transform:
   m_ObjectHideFlags: 0
