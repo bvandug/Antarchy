@@ -185,18 +185,21 @@ public class HexTilemapGenerator : MonoBehaviour
     }
 
 
+
     void EnsureFoodPlacement()
     {
         for (int y = 5; y < height; y += 7)
         {
             int randomX = UnityEngine.Random.Range(0, width);
             int randomYOffset = UnityEngine.Random.Range(-3, 3);
-            Vector3Int tilePosition = new Vector3Int(randomX, -(y + randomYOffset), 0);
+            int clampedY = Mathf.Clamp(y + randomYOffset, 0, height-1);
+
+            Vector3Int tilePosition = new Vector3Int(randomX, -clampedY, 0);
             tilemap.SetTile(tilePosition, FoodTile100);
             hexMapData[tilePosition].Tile = FoodTile100;
-
         }
     }
+
 
     void EnsureSpawnPlacement()
     {
@@ -223,7 +226,8 @@ public class HexTilemapGenerator : MonoBehaviour
         {
             int randomX = UnityEngine.Random.Range(0, width);
             int randomYOffset = UnityEngine.Random.Range(-3, 3);
-            Vector3Int tilePosition = new Vector3Int(randomX, -(y + randomYOffset), 0);
+            int clampedY = Mathf.Clamp(y + randomYOffset, 0, height-1);
+            Vector3Int tilePosition = new Vector3Int(randomX, -(clampedY), 0);
             tilemap.SetTile(tilePosition, SpawnTile100);
             hexMapData[tilePosition].Tile = SpawnTile100;
 
@@ -253,21 +257,6 @@ public class HexTilemapGenerator : MonoBehaviour
                 CheckResourceTile(mouseCell);
                 FindFirstObjectByType<AudioManager>().Play("DigTunnel");
 
-                // Check for flooding
-                Vector3Int[] floodNeighbors = getFloodNeighbors(mouseCell);
-                foreach (Vector3Int floodNeighbor in floodNeighbors)
-                {
-                    if (hexMapData.TryGetValue(floodNeighbor, out HexTileData neighborTile))
-                    {
-                        if (CheckWaterTile(floodNeighbor))
-                        {
-                            tilemap.SetTile(floodNeighbor, dirtTile); // Destroy water tile
-                            hexMapData[floodNeighbor].Tile = stoneTile; // Update dictionary
-                            floodTiles(mouseCell);
-                        }
-                    }
-                }
-
                 if (!firstBlockMined)
                 {
                     firstBlockMined = true;
@@ -296,6 +285,21 @@ public class HexTilemapGenerator : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
 
         tilemap.SetTile(mouseCell, minedTile);
+
+        // Check for flooding
+        Vector3Int[] floodNeighbors = getFloodNeighbors(mouseCell);
+        foreach (Vector3Int floodNeighbor in floodNeighbors)
+        {
+            if (hexMapData.TryGetValue(floodNeighbor, out HexTileData neighborTile))
+            {
+                if (CheckWaterTile(floodNeighbor))
+                {
+                    tilemap.SetTile(floodNeighbor, dirtTile); // Destroy water tile
+                    hexMapData[floodNeighbor].Tile = stoneTile; // Update dictionary
+                    floodTiles(mouseCell);
+                }
+            }
+        }
     }
 
 
@@ -308,15 +312,16 @@ public class HexTilemapGenerator : MonoBehaviour
         {
             return new Vector3Int[] 
             {
-                new Vector3Int(cell.x - 1, cell.y + 1, 0), // Top Left
-                new Vector3Int(cell.x, cell.y + 1, 0) // Top Right
+                new Vector3Int(cell.x, cell.y + 1, 0), // Top Left
+                new Vector3Int(cell.x + 1, cell.y + 1, 0) // Top Right
             };
         }
         else {
             return new Vector3Int[]
             {
-                new Vector3Int(cell.x, cell.y + 1, 0), // Top Left
-                new Vector3Int(cell.x + 1, cell.y + 1, 0) // Top Right
+
+                new Vector3Int(cell.x - 1, cell.y + 1, 0), // Top Left
+                new Vector3Int(cell.x, cell.y + 1, 0) // Top Right
             };
         }
     }
