@@ -7,6 +7,8 @@ using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
 using System.Threading.Tasks;
+using static UnityEngine.RuleTile.TilingRuleOutput;
+using Unity.VisualScripting;
 
 
 public class HexTilemapGenerator : MonoBehaviour
@@ -353,9 +355,7 @@ public class HexTilemapGenerator : MonoBehaviour
             {
                 if (CheckWaterTile(floodNeighbor))
                 {
-                    tilemap.SetTile(floodNeighbor, dirtTile1); // Destroy water tile
-                    hexMapData[floodNeighbor].Tile = stoneTile; // Update dictionary
-                    floodTiles(mouseCell);
+                    StartCoroutine(FloodTiles(floodNeighbor));
                 }
             }
         }
@@ -384,16 +384,44 @@ public class HexTilemapGenerator : MonoBehaviour
         }
     }
 
-    public void floodTiles(Vector3Int cell)
+    private IEnumerator FloodTiles(Vector3Int cell)
     {
-        tilemap.SetTile(cell, dirtTile1); //destroy water tile
-        hexMapData[cell].Tile = stoneTile;
-        
-        Vector3Int[] neighbors = GetHexNeighbors(cell);
-        foreach(Vector3Int neighbor in neighbors)
+        hexMapData[cell].Tile = dirtTile1;
+        tilemap.SetTile(cell, WaterTile100); //destroy water tile
+        yield return new WaitForSeconds(0.3f);
+        Vector3Int[] firstwave = FindFirstFloodTiles(cell);
+        Vector3Int[] secondwave = FindSecondFloodTiles(cell);
+
+        foreach(Vector3Int floodTile1 in firstwave)
         {
-            tilemap.SetTile(neighbor, dirtTile1);
-            hexMapData[neighbor].Tile = dirtTile1;
+            tilemap.SetTile(floodTile1, WaterTile100);
+            hexMapData[floodTile1].Tile = dirtTile1;
+        }
+        yield return new WaitForSeconds(0.3f);
+
+        foreach (Vector3Int floodTile2 in secondwave)
+        {
+            tilemap.SetTile(floodTile2, WaterTile100);
+            hexMapData[floodTile2].Tile = dirtTile1;
+        }
+
+        yield return new WaitForSeconds(0.3f);
+
+        tilemap.SetTile(cell, dirtTile1); //destroy water tile
+        yield return new WaitForSeconds(0.3f);
+
+        foreach (Vector3Int floodTile1 in firstwave)
+        {
+            tilemap.SetTile(floodTile1, dirtTile1);
+            hexMapData[floodTile1].Tile = dirtTile1;
+        }
+
+        yield return new WaitForSeconds(0.3f);
+
+        foreach (Vector3Int floodTile2 in secondwave)
+        {
+            tilemap.SetTile(floodTile2, dirtTile1);
+            hexMapData[floodTile2].Tile = dirtTile1;
         }
     }
       
@@ -482,7 +510,112 @@ public class HexTilemapGenerator : MonoBehaviour
         }
     }
 
-    
+    //this just returns number coords not actual tiles
+    public Vector3Int[] FindFirstFloodTiles(Vector3Int cell)
+    {
+        bool isEvenRow = (cell.y % 2 == 0);
+        List<Vector3Int> validTiles = new List<Vector3Int>();
+        Vector3Int[] potentialTiles;
+
+        if (isEvenRow)
+        {
+            potentialTiles = new Vector3Int[]
+            {
+                new Vector3Int(cell.x - 1, cell.y, 0), // Left
+                new Vector3Int(cell.x + 1, cell.y, 0), // Right
+                new Vector3Int(cell.x - 1, cell.y - 1, 0), // Bottom Left
+                new Vector3Int(cell.x, cell.y - 1, 0), // Bottom Right
+            };
+        }
+        else
+        {
+            potentialTiles = new Vector3Int[]
+            {
+                new Vector3Int(cell.x - 1, cell.y, 0), // Left
+                new Vector3Int(cell.x + 1, cell.y, 0), // Right
+                new Vector3Int(cell.x, cell.y - 1, 0), // Bottom Left
+                new Vector3Int(cell.x + 1, cell.y - 1, 0), // Bottom Right
+            };
+        }
+
+        // Filter out tiles that are out of bounds
+        foreach (var tile in potentialTiles)
+        {
+            if (tile.x >= 0 && tile.x < width)
+            {
+                validTiles.Add(tile);
+            }
+        }
+
+        return validTiles.ToArray();
+    }
+
+
+    public Vector3Int[] FindSecondFloodTiles(Vector3Int cell)
+    {
+        bool isEvenRow = (cell.y % 2 == 0);
+        List<Vector3Int> validTiles = new List<Vector3Int>();
+
+        Vector3Int[] potentialTiles;
+
+        if (isEvenRow)
+        {
+            Debug.LogFormat("EVEN ROW");
+            potentialTiles = new Vector3Int[]
+            {
+                new Vector3Int(cell.x - 2, cell.y, 0), // Left -> Left
+                new Vector3Int(cell.x + 2, cell.y, 0), // Right -> Right
+
+                new Vector3Int(cell.x, cell.y - 2, 0), // Bottom Left -> Bottom Left
+                new Vector3Int(cell.x + 1, cell.y - 2, 0), // Bottom Left -> Right
+
+                new Vector3Int(cell.x - 2, cell.y - 1, 0), // Bottom Left ->left
+                new Vector3Int(cell.x+1, cell.y - 1, 0), // Bottom Right -> right
+
+                new Vector3Int(cell.x - 1, cell.y - 2, 0), // Bottom Right -> Bottom Right
+            };
+        }
+        else
+        {
+            Debug.LogFormat("ODD ROW");
+            potentialTiles = new Vector3Int[]
+            {
+                /*
+                new Vector3Int(cell.x - 1, cell.y, 0), // Left
+                new Vector3Int(cell.x + 1, cell.y, 0), // Right
+                new Vector3Int(cell.x, cell.y - 1, 0), // Bottom Left
+                new Vector3Int(cell.x + 1, cell.y - 1, 0), // Bottom Right
+                */
+
+                new Vector3Int(cell.x - 2, cell.y, 0), // Left-> Left
+                new Vector3Int(cell.x + 2, cell.y, 0), // Right-> Right
+
+                new Vector3Int(cell.x - 1, cell.y - 2, 0), // Bottom Left -> Bottom Left
+                new Vector3Int(cell.x-1, cell.y - 1, 0), // Bottom Left -> right
+                new Vector3Int(cell.x, cell.y-2, 0), // Bottom Left -> Bottom Left
+                //new Vector3Int(cell.x, cell.y - 1, 0), // Bottom Left
+
+                new Vector3Int(cell.x + 1, cell.y - 1, 0), // Bottom Right -> Left
+                new Vector3Int(cell.x + 2, cell.y - 1, 0), // Bottom Right -> right
+                new Vector3Int(cell.x + 1, cell.y - 2, 0), // Bottom Right -> Bottom Right
+            };
+        }
+
+        // Filter out tiles that are out of bounds
+        foreach (var tile in potentialTiles)
+        {
+            if (tile.x >= 0 && tile.x < width)
+            {
+                validTiles.Add(tile);
+            }
+        }
+
+        return validTiles.ToArray();
+    }
+
+
+
+
     // This method checks whether a tile has been mined or not
     public bool IsTileMined(Vector3Int cell)
     {
