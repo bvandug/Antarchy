@@ -30,7 +30,7 @@ public class HexTilemapGenerator : MonoBehaviour
 
     public Dictionary<Vector3Int, HexTileData> hexMapData = new Dictionary<Vector3Int, HexTileData>();
 
-    public float population = 10;
+    public float population = 100;
     private float food = 1000;
     private float water = 2000;
     public TextMeshProUGUI antCountText;
@@ -206,6 +206,21 @@ public class HexTilemapGenerator : MonoBehaviour
                 CheckResourceTile(mouseCell);
                 FindFirstObjectByType<AudioManager>().Play("DigTunnel");
 
+                // Check if the mined tile causes a flood
+                Vector3Int[] floodNeighbors = getFloodNeighbors(mouseCell);
+                foreach (Vector3Int floodNeighbor in floodNeighbors) 
+                {
+                    if (hexMapData.TryGetValue(floodNeighbor, out HexTileData neighborTile))
+                    {
+                        if(CheckWaterTile(floodNeighbor))
+                        {
+                            tilemap.SetTile(floodNeighbor, dirtTile); //destroy water tile
+                            hexMapData[floodNeighbor].Tile = stoneTile; // Update dictionary
+                            floodTiles(mouseCell);
+                        }
+                    }
+                }
+
                 if (!firstBlockMined)
                 {
                     firstBlockMined = true;
@@ -220,10 +235,42 @@ public class HexTilemapGenerator : MonoBehaviour
             }
         }
     }
+            
+    // This method returns the neighboring tiles that can cause a flood
+    public Vector3Int[] getFloodNeighbors(Vector3Int cell)
+    {
+        bool isEvenRow = (cell.y % 2 == 0);
+
+        if (isEvenRow)
+        {
+            return new Vector3Int[] 
+            {
+                new Vector3Int(cell.x - 1, cell.y + 1, 0), // Top Left
+                new Vector3Int(cell.x, cell.y + 1, 0) // Top Right
+            };
+        }
+        else {
+            return new Vector3Int[]
+            {
+                new Vector3Int(cell.x, cell.y + 1, 0), // Top Left
+                new Vector3Int(cell.x + 1, cell.y + 1, 0) // Top Right
+            };
+        }
+    }
+
+    public void floodTiles(Vector3Int cell)
+    {
+        tilemap.SetTile(cell, dirtTile); //destroy water tile
+        hexMapData[cell].Tile = stoneTile;
+        
+        Vector3Int[] neighbors = GetHexNeighbors(cell);
+        foreach(Vector3Int neighbor in neighbors)
+        {
+            tilemap.SetTile(neighbor, dirtTile);
+            hexMapData[neighbor].Tile = stoneTile;
+        }
+    }
       
-    
-
-
     public int GetMiningCost(Vector3Int mouseCell) 
     { 
         int baseCost = 5; 
@@ -306,6 +353,7 @@ public class HexTilemapGenerator : MonoBehaviour
         }
     }
 
+    
     // This method checks whether a tile has been mined or not
     public bool IsTileMined(Vector3Int cell)
     {
@@ -327,6 +375,7 @@ public class HexTilemapGenerator : MonoBehaviour
             {
                 if(CheckWaterTile(neighbor))
                 {
+                    
                     if (!neighborTile.IsActivated)
                     {
                         neighborTile.IsActivated = true;
@@ -367,7 +416,7 @@ public class HexTilemapGenerator : MonoBehaviour
                 HexTileData tileData = kvp.Value;
                 Vector3Int tilePos = kvp.Key;
 
-                if (CheckWaterTile(tilePos) && tileData.IsActivated)
+                if (CheckWaterTile(tilePos) && tileData.IsActivated && !tileData.IsDisabled)
                 {
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
@@ -400,7 +449,7 @@ public class HexTilemapGenerator : MonoBehaviour
 
                     }
                 }
-                if (CheckFoodTile(tilePos) && tileData.IsActivated)
+                if (CheckFoodTile(tilePos) && tileData.IsActivated && !tileData.IsDisabled)
                 {
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
@@ -433,11 +482,11 @@ public class HexTilemapGenerator : MonoBehaviour
 
                     }
                 }
-                if (CheckSpawnTile(tilePos) && tileData.IsActivated)
+                if (CheckSpawnTile(tilePos) && tileData.IsActivated && !tileData.IsDisabled)
                 {
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
-                        tileData.FillLevel += 10f; // Increase fill level
+                        tileData.FillLevel += 5f; // Increase fill level
                         if (tileData.FillLevel <= 50f)
                         {
                             tilemap.SetTile(tilePos, SpawnTile0);

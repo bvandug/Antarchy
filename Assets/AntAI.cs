@@ -2,38 +2,34 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
 using System.Collections;
-using TMPro;
 
 public class AntAI : MonoBehaviour
 {
     public GameObject antSpritePrefab;
     public int antAICount = 0;
     
-    
     private List<GameObject> antInstances = new List<GameObject>();
     private Tilemap tilemap;
     private HexTilemapGenerator mapGenerator;
 
-// Population count from HexTileMapGen
+    // Population count from HexTileMapGen
     private int population; 
     public float minedBlockCount;
     private Vector3Int spawnPosition;
-private int previousMinedBlockCount = 0;  // Track previous mined block count
-private double antsPerMinedBlock = 0.5;  // Adjustable spawn ratio
+    private int previousMinedBlockCount = 0;  // Track previous mined block count
+    private double antsPerMinedBlock = 0.5;  // Adjustable spawn ratio
     
     [Header("Movement Settings")]
     public float moveSpeed = 2f;
-    public float pathPlanningInterval = 0.5f;
-    public float pathPlanningVariation = 0.3f;
+    public float moveInterval = 0.5f;
+    public float moveIntervalVariation = 0.3f;
     [Range(0, 1)]
     public float turnSmoothness = 0.5f;
-    public int maxPathLength = 3; // Maximum cells to plan ahead
     
-    // Track current position and target paths of each ant
+    // Track current position of each ant
     private List<Vector3Int> currentCells = new List<Vector3Int>();
-    private List<Queue<Vector3Int>> antPaths = new List<Queue<Vector3Int>>();
     private List<bool> isMoving = new List<bool>();
-    private List<Vector3> velocities = new List<Vector3>(); // Need to store these separately
+    private List<Vector3> velocities = new List<Vector3>(); // Store velocities separately
     
     // Dictionary to track global visits to each cell
     private Dictionary<Vector3Int, int> globalVisitCounts = new Dictionary<Vector3Int, int>();
@@ -41,18 +37,13 @@ private double antsPerMinedBlock = 0.5;  // Adjustable spawn ratio
     // Dictionary to track which ants are currently on each cell
     private Dictionary<Vector3Int, List<int>> occupiedCells = new Dictionary<Vector3Int, List<int>>();
     
-    // Dictionary to track target cells for path planning
-    private Dictionary<Vector3Int, List<int>> targetCells = new Dictionary<Vector3Int, List<int>>();
-    
     void Start()
     {
         mapGenerator = FindFirstObjectByType<HexTilemapGenerator>();
         tilemap = mapGenerator.tilemap;
         population = (int)mapGenerator.population;
         minedBlockCount = mapGenerator.minedBlockCount;
-        
     }
-
 
     public void OnFirstBlockMined(Vector3Int cellPosition)
     {
@@ -62,7 +53,7 @@ private double antsPerMinedBlock = 0.5;  // Adjustable spawn ratio
         // Initialize occupation tracking for first cell
         occupiedCells[cellPosition] = new List<int>();
         
-        // Spawn multiple ants
+        // Spawn initial ant
         for (int i = 0; i < 1; i++)
         {
             // Create ant with slight position variation
@@ -81,7 +72,6 @@ private double antsPerMinedBlock = 0.5;  // Adjustable spawn ratio
             currentCells.Add(cellPosition);
             isMoving.Add(false);
             velocities.Add(Vector3.zero);
-            antPaths.Add(new Queue<Vector3Int>());
             
             // Record initial occupation
             occupiedCells[cellPosition].Add(i);
@@ -89,11 +79,9 @@ private double antsPerMinedBlock = 0.5;  // Adjustable spawn ratio
             // Record initial visit
             RecordVisit(cellPosition);
             
-            // Start path planning coroutine for this ant with staggered delay
-            StartCoroutine(PlanAntPath(i, Random.Range(0f, 1f))); // Staggered start
+            // Start ant movement coroutine with staggered delay
+            StartCoroutine(MoveAntRoutine(i, Random.Range(0f, 1f)));
         }
-        
-        //Debug.Log($"Spawned {antCount} ants at the first mined block: {cellPosition}");
     }
     
     void RecordVisit(Vector3Int cell)
@@ -117,184 +105,174 @@ private double antsPerMinedBlock = 0.5;  // Adjustable spawn ratio
         return 0;
     }
     
-    // Update is called once per frame
     void Update()
-    {
-        minedBlockCount = mapGenerator.minedBlockCount;
-        population = (int)mapGenerator.population;
-         // Check if more blocks have been mined
-        if (minedBlockCount > previousMinedBlockCount)
-        {
-            int newAntsToSpawn = (int)((minedBlockCount - previousMinedBlockCount) * antsPerMinedBlock);
-            SpawnAdditionalAnts(newAntsToSpawn);
-            if (newAntsToSpawn >= 1) {
-                previousMinedBlockCount = (int)minedBlockCount; // Update the tracked value
-            }
-        }
-
-        // Move all ants according to their paths and velocities
-        for (int i = 0; i < antInstances.Count; i++)
-        {
-            if (antPaths[i].Count > 0 && !isMoving[i])
-            {
-                // Start moving to the next cell in path
-                Vector3Int nextCell = antPaths[i].Dequeue();
-                StartCoroutine(MoveAntToCell(i, nextCell));
-            }
-        }
-        // Check if the number of ants exceeds the population
-    int excessAnts = antInstances.Count - population;
-    // if (excessAnts > 0)
-    // {
-    //     RemoveAnts(excessAnts);
-    // }
-        
-    }
-    void SpawnAdditionalAnts(int antCount)
 {
-    if (spawnPosition == null) return;
-
-    Vector3 worldPosition = tilemap.GetCellCenterWorld(spawnPosition);
-
-    for (int i = 0; i < antCount; i++)
+    tilemap = mapGenerator.tilemap;
+    minedBlockCount = mapGenerator.minedBlockCount;
+    population = (int)mapGenerator.population;
+    
+    // Check if more blocks have been mined
+    if (minedBlockCount > previousMinedBlockCount)
     {
-        Vector3 spawnPos = worldPosition + new Vector3(
-            Random.Range(-0.1f, 0.1f),
-            Random.Range(-0.1f, 0.1f),
-            0
-        );
-
-        GameObject ant = Instantiate(antSpritePrefab, spawnPos, Quaternion.identity);
-        ant.name = "Ant_" + (antInstances.Count + i);
-        ant.transform.parent = this.transform;
-
-        antInstances.Add(ant);
-        currentCells.Add(spawnPosition);
-        isMoving.Add(false);
-        velocities.Add(Vector3.zero);
-        antPaths.Add(new Queue<Vector3Int>());
-
-        if (!occupiedCells.ContainsKey(spawnPosition))
-        {
-            occupiedCells[spawnPosition] = new List<int>();
+        int newAntsToSpawn = (int)((minedBlockCount - previousMinedBlockCount) * antsPerMinedBlock);
+        SpawnAdditionalAnts(newAntsToSpawn);
+        if (newAntsToSpawn >= 1) {
+            previousMinedBlockCount = (int)minedBlockCount; // Update the tracked value
         }
-        occupiedCells[spawnPosition].Add(antInstances.Count - 1);
-        RecordVisit(spawnPosition);
-
-        StartCoroutine(PlanAntPath(antInstances.Count - 1, Random.Range(0f, 1f)));
     }
+    
+    // NEW CODE: Check if we need to delete excess ants
+    RemoveExcessAnts();
 }
 
-// void RemoveAnts(int numToRemove)
-// {
-//     int numRemoved = 0;
+// NEW FUNCTION: Delete excess ants if there are more ants than the population amount
+void RemoveExcessAnts()
+{
+    // Count active ant instances (non-null)
+    int activeAntCount = 0;
+    for (int i = 0; i < antInstances.Count; i++)
+    {
+        if (antInstances[i] != null)
+        {
+            activeAntCount++;
+        }
+    }
+    
+    // If there are more ants than the population allows
+    if (activeAntCount > population && population >= 0)
+    {
+        int excessAnts = activeAntCount - population;
+        int antsRemoved = 0;
+        
+        // Start from the end of the list to remove the newest ants first
+        for (int i = antInstances.Count - 1; i >= 0 && antsRemoved < excessAnts; i--)
+        {
+            if (antInstances[i] != null)
+            {
+                DeleteAnt(i);
+                antsRemoved++;
+            }
+        }
+    }
+}
+    
+    void SpawnAdditionalAnts(int antCount)
+    {
+        if (spawnPosition == null) return;
 
-//     while (numRemoved < numToRemove && antInstances.Count > 0)
-//     {
-//         int lastIndex = antInstances.Count - 1; // Always remove the last element
+        Vector3 worldPosition = tilemap.GetCellCenterWorld(spawnPosition);
 
-//         Debug.Log($"Removing ant at index: {lastIndex}, Total ants: {antInstances.Count}");
+        for (int i = 0; i < antCount; i++)
+        {
+            Vector3 spawnPos = worldPosition + new Vector3(
+                Random.Range(-0.1f, 0.1f),
+                Random.Range(-0.1f, 0.1f),
+                0
+            );
 
-//         // Destroy the ant GameObject
-//         Destroy(antInstances[lastIndex]);
+            GameObject ant = Instantiate(antSpritePrefab, spawnPos, Quaternion.identity);
+            ant.name = "Ant_" + (antInstances.Count + i);
+            ant.transform.parent = this.transform;
 
-//         // Get the cell position before removal
-//         Vector3Int cellPosition = currentCells[lastIndex];
+            antInstances.Add(ant);
+            currentCells.Add(spawnPosition);
+            isMoving.Add(false);
+            velocities.Add(Vector3.zero);
 
-//         // Remove from all lists
-//         antInstances.RemoveAt(lastIndex);
-//         currentCells.RemoveAt(lastIndex);
-//         isMoving.RemoveAt(lastIndex);
-//         velocities.RemoveAt(lastIndex);
-//         antPaths.RemoveAt(lastIndex);
+            if (!occupiedCells.ContainsKey(spawnPosition))
+            {
+                occupiedCells[spawnPosition] = new List<int>();
+            }
+            occupiedCells[spawnPosition].Add(antInstances.Count - 1);
+            RecordVisit(spawnPosition);
 
-//         // Ensure occupiedCells is updated correctly
-//         if (occupiedCells.ContainsKey(cellPosition))
-//         {
-//             occupiedCells[cellPosition].Remove(lastIndex);
-//             if (occupiedCells[cellPosition].Count == 0)
-//             {
-//                 occupiedCells.Remove(cellPosition);
-//             }
-//         }
+            StartCoroutine(MoveAntRoutine(antInstances.Count - 1, Random.Range(0f, 1f)));
+        }
+    }
 
-//         numRemoved++;
-//     }
-
-//     Debug.Log($"Successfully removed {numRemoved} ants.");
-// }
-    IEnumerator PlanAntPath(int antIndex, float initialDelay)
+    IEnumerator MoveAntRoutine(int antIndex, float initialDelay)
     {
         // Initial delay to stagger ant movement
         yield return new WaitForSeconds(initialDelay);
         
-        // Create a unique planning interval for each ant
-        float individualPlanningInterval = pathPlanningInterval + Random.Range(-pathPlanningVariation, pathPlanningVariation);
+        // Create a unique movement interval for each ant
+        float individualMoveInterval = moveInterval + Random.Range(-moveIntervalVariation, moveIntervalVariation);
         
         while (true)
         {
-            // Only plan new paths when the ant isn't moving or has few planned steps left
-            if (!isMoving[antIndex] || antPaths[antIndex].Count < 1)
+            // First check if current cell is still a mined block
+            if (antIndex < antInstances.Count && antInstances[antIndex] != null)
             {
                 Vector3Int currentCell = currentCells[antIndex];
                 
-                // Plan a multi-step path
-                PlanPathForAnt(antIndex, currentCell);
+                // Check if the current block is no longer a mined block
+                if (!mapGenerator.IsTileMined(currentCell))
+                {
+                    // Delete ant if its current block changed from mined to dirt
+                    DeleteAnt(antIndex);
+                    yield break; // Exit the coroutine
+                }
+                
+                // Only move when the ant isn't already moving
+                if (!isMoving[antIndex])
+                {
+                    // Find best neighboring cell to move to
+                    Vector3Int nextCell = FindBestNeighborCell(antIndex, currentCell);
+                    
+                    // Move to that cell if one was found and it's different from the current cell
+                    if (nextCell != currentCell)
+                    {
+                        StartCoroutine(MoveAntToCell(antIndex, nextCell));
+                    }
+                }
+            }
+            else
+            {
+                yield break; // Exit if ant has been destroyed
             }
             
-            yield return new WaitForSeconds(individualPlanningInterval);
+            yield return new WaitForSeconds(individualMoveInterval);
         }
     }
     
-    void PlanPathForAnt(int antIndex, Vector3Int startCell)
+    void DeleteAnt(int antIndex)
     {
-        // Clear any existing path
-        if (isMoving[antIndex])
-        {
-            // Don't clear the path if the ant is already moving
+        if (antIndex >= antInstances.Count || antInstances[antIndex] == null)
             return;
-        }
+            
+        // Get current cell to update occupation tracking
+        Vector3Int currentCell = currentCells[antIndex];
         
-        // Clear existing target cell reservations for this ant
-        foreach (var kvp in targetCells)
+        // Remove from occupied cells dictionary
+        if (occupiedCells.ContainsKey(currentCell) && occupiedCells[currentCell].Contains(antIndex))
         {
-            if (kvp.Value.Contains(antIndex))
-            {
-                kvp.Value.Remove(antIndex);
-            }
+            occupiedCells[currentCell].Remove(antIndex);
         }
         
-        Queue<Vector3Int> newPath = new Queue<Vector3Int>();
-        Vector3Int currentPathCell = startCell;
+        // Destroy the GameObject
+        Destroy(antInstances[antIndex]);
         
-        // Plan up to maxPathLength steps ahead
-        for (int step = 0; step < maxPathLength; step++)
-        {
-            List<Vector3Int> availableNeighbors = GetAvailableNeighbors(currentPathCell);
-            
-            // If no neighbors available, stop planning
-            if (availableNeighbors.Count == 0)
-                break;
-                
-            // Choose next cell based on exploration and ant distribution
-            Vector3Int nextCell = ChooseBestCell(antIndex, availableNeighbors);
-            
-            // Reserve this cell for path planning purposes
-            if (!targetCells.ContainsKey(nextCell))
-            {
-                targetCells[nextCell] = new List<int>();
-            }
-            targetCells[nextCell].Add(antIndex);
-            
-            // Add to path
-            newPath.Enqueue(nextCell);
-            
-            // Update for next iteration
-            currentPathCell = nextCell;
-        }
+        // Option 1: Keep the ant in the lists but mark as null
+        antInstances[antIndex] = null;
+        isMoving[antIndex] = false;
         
-        // Set the new path
-        antPaths[antIndex] = newPath;
+        // Option 2 (alternative): Remove the ant from all lists
+        // This is more complex and requires updating all ant indices
+        // Not implemented here to avoid complexity
+    }
+    
+    Vector3Int FindBestNeighborCell(int antIndex, Vector3Int currentCell)
+    {
+        List<Vector3Int> availableNeighbors = GetAvailableNeighbors(currentCell);
+        
+        // If no neighbors available, stay in current cell
+        if (availableNeighbors.Count == 0)
+            return currentCell;
+            
+        // Choose best cell based on exploration and ant distribution
+        Vector3Int bestCell = ChooseBestCell(antIndex, availableNeighbors);
+        
+        return bestCell;
     }
     
     Vector3Int ChooseBestCell(int antIndex, List<Vector3Int> neighbors)
@@ -304,18 +282,15 @@ private double antsPerMinedBlock = 0.5;  // Adjustable spawn ratio
         
         float maxVisitCount = 1f;
         float maxOccupationCount = 1f;
-        float maxTargetCount = 1f;
         
         // Find maximum values to normalize scores
         foreach (Vector3Int cell in neighbors)
         {
             int visitCount = GetVisitCount(cell);
             int occupationCount = occupiedCells.ContainsKey(cell) ? occupiedCells[cell].Count : 0;
-            int targetCount = targetCells.ContainsKey(cell) ? targetCells[cell].Count : 0;
             
             if (visitCount > maxVisitCount) maxVisitCount = visitCount;
             if (occupationCount > maxOccupationCount) maxOccupationCount = occupationCount;
-            if (targetCount > maxTargetCount) maxTargetCount = targetCount;
         }
         
         // Score each cell
@@ -323,15 +298,13 @@ private double antsPerMinedBlock = 0.5;  // Adjustable spawn ratio
         {
             int visitCount = GetVisitCount(cell);
             int occupationCount = occupiedCells.ContainsKey(cell) ? occupiedCells[cell].Count : 0;
-            int targetCount = targetCells.ContainsKey(cell) ? targetCells[cell].Count : 0;
             
             // Lower scores are better
             float explorationScore = visitCount / maxVisitCount;
             float distributionScore = occupationCount / maxOccupationCount;  
-            float targetScore = targetCount / maxTargetCount;
             
-            // Weight exploration vs distribution vs target avoidance
-            float totalScore = (explorationScore * 0.5f) + (distributionScore * 0.3f) + (targetScore * 0.2f);
+            // Weight exploration vs distribution
+            float totalScore = (explorationScore * 0.6f) + (distributionScore * 0.4f);
             
             cellScores[cell] = totalScore;
         }
@@ -359,97 +332,82 @@ private double antsPerMinedBlock = 0.5;  // Adjustable spawn ratio
     }
     
     IEnumerator MoveAntToCell(int antIndex, Vector3Int targetCell)
-{
-    isMoving[antIndex] = true;
-    
-    Vector3Int currentCell = currentCells[antIndex];
-    
-    occupiedCells[currentCell].Remove(antIndex);
-    
-    if (!occupiedCells.ContainsKey(targetCell))
     {
-        occupiedCells[targetCell] = new List<int>();
-    }
-    
-    Vector3 startPosition = antInstances[antIndex].transform.position;
-    Vector3 targetPosition = tilemap.GetCellCenterWorld(targetCell);
-    
-    Vector3 direction = targetPosition - startPosition;
-    
-    targetPosition += new Vector3(
-        Random.Range(-0.05f, 0.05f),
-        Random.Range(-0.05f, 0.05f),
-        0
-    );
-    
-    Vector3 currentVelocity = velocities[antIndex];
-    
-    float smoothTime = 0.1f * (1 - turnSmoothness);
-    
-    while (Vector3.Distance(antInstances[antIndex].transform.position, targetPosition) > 0.01f)
-    {
-        antInstances[antIndex].transform.position = Vector3.SmoothDamp(
-            antInstances[antIndex].transform.position,
-            targetPosition,
-            ref currentVelocity,
-            smoothTime,
-            moveSpeed
+        if (antIndex >= antInstances.Count || antInstances[antIndex] == null)
+            yield break;
+            
+        isMoving[antIndex] = true;
+        
+        Vector3Int currentCell = currentCells[antIndex];
+        
+        // Remove ant from current cell's occupancy list
+        if (occupiedCells.ContainsKey(currentCell))
+        {
+            occupiedCells[currentCell].Remove(antIndex);
+        }
+        
+        // Initialize target cell's occupancy list if needed
+        if (!occupiedCells.ContainsKey(targetCell))
+        {
+            occupiedCells[targetCell] = new List<int>();
+        }
+        
+        Vector3 startPosition = antInstances[antIndex].transform.position;
+        Vector3 targetPosition = tilemap.GetCellCenterWorld(targetCell);
+        
+        Vector3 direction = targetPosition - startPosition;
+        
+        // Add a small random offset to prevent perfect stacking
+        targetPosition += new Vector3(
+            Random.Range(-0.05f, 0.05f),
+            Random.Range(-0.05f, 0.05f),
+            0
         );
         
-        velocities[antIndex] = currentVelocity;
+        Vector3 currentVelocity = velocities[antIndex];
         
-        if (direction.sqrMagnitude > 0.01f)
+        float smoothTime = 0.1f * (1 - turnSmoothness);
+        
+        while (antInstances[antIndex] != null && 
+               Vector3.Distance(antInstances[antIndex].transform.position, targetPosition) > 0.01f)
         {
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            
-            angle += -180f;
-            
-            Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
-            antInstances[antIndex].transform.rotation = Quaternion.Slerp(
-                antInstances[antIndex].transform.rotation,
-                targetRotation,
-                10f * Time.deltaTime
+            antInstances[antIndex].transform.position = Vector3.SmoothDamp(
+                antInstances[antIndex].transform.position,
+                targetPosition,
+                ref currentVelocity,
+                smoothTime,
+                moveSpeed
             );
+            
+            velocities[antIndex] = currentVelocity;
+            
+            if (direction.sqrMagnitude > 0.01f)
+            {
+                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                
+                angle += -180f;
+                
+                Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
+                antInstances[antIndex].transform.rotation = Quaternion.Slerp(
+                    antInstances[antIndex].transform.rotation,
+                    targetRotation,
+                    10f * Time.deltaTime
+                );
+            }
+            
+            yield return null;
         }
         
-        yield return null;
-    }
-    
-    currentCells[antIndex] = targetCell;
-    
-    occupiedCells[targetCell].Add(antIndex);
-    
-    if (targetCells.ContainsKey(targetCell) && targetCells[targetCell].Contains(antIndex))
-    {
-        targetCells[targetCell].Remove(antIndex);
-    }
-    
-    RecordVisit(targetCell);
-    
-    isMoving[antIndex] = false;
-    
-    if (antPaths[antIndex].Count > 0)
-    {
-        Vector3Int nextCell = antPaths[antIndex].Peek();
-        if (IsCellSafe(nextCell))
+        // Check if the ant still exists
+        if (antIndex < antInstances.Count && antInstances[antIndex] != null)
         {
-            nextCell = antPaths[antIndex].Dequeue();
-            StartCoroutine(MoveAntToCell(antIndex, nextCell));
-        }
-    }
-}
-
-
-    
-    bool IsCellSafe(Vector3Int cell)
-    {
-        // Check if any ants are currently transitioning to this cell
-        if (targetCells.ContainsKey(cell) && targetCells[cell].Count > 0)
-            return false;
+            // Update current cell and occupancy tracking
+            currentCells[antIndex] = targetCell;
+            occupiedCells[targetCell].Add(antIndex);
+            RecordVisit(targetCell);
             
-        // Check current occupation but allow some stacking for more natural movement
-        int currentOccupants = occupiedCells.ContainsKey(cell) ? occupiedCells[cell].Count : 0;
-        return currentOccupants < 2; // Allow up to 2 ants per cell
+            isMoving[antIndex] = false;
+        }
     }
     
     List<Vector3Int> GetAvailableNeighbors(Vector3Int cell)
@@ -461,7 +419,12 @@ private double antsPerMinedBlock = 0.5;  // Adjustable spawn ratio
         {
             if (mapGenerator.IsTileMined(neighbor))
             {
-                availableNeighbors.Add(neighbor);
+                // Don't go to cells that are too crowded
+                int currentOccupants = occupiedCells.ContainsKey(neighbor) ? occupiedCells[neighbor].Count : 0;
+                if (currentOccupants < 2) // Allow up to 2 ants per cell
+                {
+                    availableNeighbors.Add(neighbor);
+                }
             }
         }
         
