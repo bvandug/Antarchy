@@ -13,7 +13,7 @@ public class Timer : MonoBehaviour
     float levelTime = 20;
     float remainingTime;
     public GameObject timeUpPanel;
-    private bool isPaused = false;
+    public bool isPaused = false;
     private Coroutine flashCoroutine;
     private bool isFlashing = false;
 
