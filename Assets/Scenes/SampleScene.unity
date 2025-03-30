@@ -6370,7 +6370,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilemap: {fileID: 860469937}
-  dirtTile: {fileID: 11400000, guid: dc8d0a2ddb517d4469bf870e8d2ed6ee, type: 2}
+  dirtTile1: {fileID: 11400000, guid: 50d2c4d0ba132474fbf50d8cc2da3117, type: 2}
+  dirtTile2: {fileID: 11400000, guid: 35aecc2dc7bc2b14895217e072db4bfc, type: 2}
+  dirtTile3: {fileID: 11400000, guid: f6706d3c712fde34288595e14265fc92, type: 2}
   stoneTile: {fileID: 11400000, guid: 6607ff6ab7bc6d84a8553ca958cde156, type: 2}
   minedTile: {fileID: 11400000, guid: cf8a12cf56e0753459449e664f3e5423, type: 2}
   WaterTile0: {fileID: 11400000, guid: d799f2738292c7f4bbe614c8db2440e0, type: 2}
@@ -6386,6 +6388,12 @@ MonoBehaviour:
   CrackTile1: {fileID: 11400000, guid: 5dfef610d8baf03458b9688be777eb7f, type: 2}
   CrackTile2: {fileID: 11400000, guid: a8f8632b3ee537248a5a4c1f986475e6, type: 2}
   CrackTile3: {fileID: 11400000, guid: 6a65df4fca23e4449b868c0fbdf6ef70, type: 2}
+  Dirt2crack1: {fileID: 11400000, guid: c1990cd34afc45a4cb2b0c34e60ccaa3, type: 2}
+  Dirt2crack2: {fileID: 11400000, guid: 1ab4e90fab063544d8c7fcf212ad6b4b, type: 2}
+  Dirt2crack3: {fileID: 11400000, guid: c9a45ae47a03a12468ac148640b215bc, type: 2}
+  Dirt3crack1: {fileID: 11400000, guid: bcc1f30a034f36243a1c36d982451c2d, type: 2}
+  Dirt3crack2: {fileID: 11400000, guid: 9afb0ef86d9dc9e4784398e3a2ed6767, type: 2}
+  Dirt3crack3: {fileID: 11400000, guid: 7f1f83aeea9c24344974057c1fa0d8c4, type: 2}
   SpawnTile0: {fileID: 11400000, guid: 45f696b4332e93a4ca3656c86ecb85a2, type: 2}
   SpawnTile25: {fileID: 11400000, guid: a89d1448f67e4534aa80915a48018a1d, type: 2}
   SpawnTile50: {fileID: 11400000, guid: 462a0a53b804b0e449ca783281c2b461, type: 2}

@@ -14,10 +14,13 @@ public class HexTilemapGenerator : MonoBehaviour
     private int width = 28;
     private int height = 300;
     public Tilemap tilemap;
-    public TileBase dirtTile, stoneTile, minedTile,
+    public TileBase dirtTile1, dirtTile2, dirtTile3,
+        stoneTile, minedTile,
         WaterTile0, WaterTile25, WaterTile50, WaterTile75, WaterTile100,
         FoodTile0, FoodTile25, FoodTile50, FoodTile75, FoodTile100,
         CrackTile1, CrackTile2, CrackTile3,
+        Dirt2crack1, Dirt2crack2, Dirt2crack3,
+        Dirt3crack1, Dirt3crack2, Dirt3crack3,
         SpawnTile0, SpawnTile25, SpawnTile50, SpawnTile75, SpawnTile100;
 
     public float noiseScale = 0.3f; // Lower for bigger clusters
@@ -123,14 +126,28 @@ public class HexTilemapGenerator : MonoBehaviour
                 float stoneNoise = Mathf.PerlinNoise((x + seed + 500) * stoneNoiseScale, (y + seed + 500) * stoneNoiseScale);
 
                 Vector3Int tilePosition = new Vector3Int(x, -y, 0);
-                TileBase selectedTile;
+                TileBase selectedTile = dirtTile1;
 
                 if (baseNoise > waterThreshold)
                     selectedTile = WaterTile100;
                 else if (stoneNoise > stoneThreshold)
                     selectedTile = stoneTile;
                 else
-                    selectedTile = dirtTile;
+                {
+                    // Loop through dirt tiles every 30 rows (0-9 -> dirt1, 10-19 -> dirt2, 20-29 -> dirt3, then repeat)
+                    switch ((y / 10) % 3)
+                    {
+                        case 0:
+                            selectedTile = dirtTile1;
+                            break;
+                        case 1:
+                            selectedTile = dirtTile2;
+                            break;
+                        case 2:
+                            selectedTile = dirtTile3;
+                            break;
+                    }
+                }
 
                 tilemap.SetTile(tilePosition, selectedTile);
                 hexMapData[tilePosition] = new HexTileData(selectedTile);
@@ -141,7 +158,8 @@ public class HexTilemapGenerator : MonoBehaviour
         EnsureSpawnPlacement();
     }
 
-    
+
+
     void GenerateDemo(int seed =1)
     {
         tilemap.ClearAllTiles();
@@ -162,7 +180,7 @@ public class HexTilemapGenerator : MonoBehaviour
                 else if (stoneNoise > stoneThreshold)
                     selectedTile = stoneTile;
                 else
-                    selectedTile = dirtTile;
+                    selectedTile = dirtTile1;
 
                 tilemap.SetTile(tilePosition, selectedTile);
                 hexMapData[tilePosition] = new HexTileData(selectedTile);
@@ -214,10 +232,10 @@ public class HexTilemapGenerator : MonoBehaviour
         {
             if (hexMapData.TryGetValue(neighbor, out HexTileData tileData1))
             {
-                if (tileData1.Tile != dirtTile) // Ensure at least one adjacent mined tile
+                if (tileData1.Tile != dirtTile1) // Ensure at least one adjacent mined tile
                 {
-                    tilemap.SetTile(neighbor, dirtTile);
-                    hexMapData[neighbor].Tile = dirtTile;
+                    tilemap.SetTile(neighbor, dirtTile1);
+                    hexMapData[neighbor].Tile = dirtTile1;
                 }
             }
         }
@@ -275,16 +293,57 @@ public class HexTilemapGenerator : MonoBehaviour
     // Coroutine for delayed tile updates
     private IEnumerator MineTileWithDelay(Vector3Int mouseCell)
     {
-        tilemap.SetTile(mouseCell, CrackTile1);
-        yield return new WaitForSeconds(0.2f);
+        if (hexMapData[mouseCell].Tile == dirtTile1 )
+        {
 
-        tilemap.SetTile(mouseCell, CrackTile2);
-        yield return new WaitForSeconds(0.2f);
+            tilemap.SetTile(mouseCell, CrackTile1);
+            yield return new WaitForSeconds(0.2f);
 
-        tilemap.SetTile(mouseCell, CrackTile3);
-        yield return new WaitForSeconds(0.2f);
+            tilemap.SetTile(mouseCell, CrackTile2);
+            yield return new WaitForSeconds(0.2f);
 
-        tilemap.SetTile(mouseCell, minedTile);
+            tilemap.SetTile(mouseCell, CrackTile3);
+            yield return new WaitForSeconds(0.2f);
+
+            tilemap.SetTile(mouseCell, minedTile);
+        }
+
+        if (hexMapData[mouseCell].Tile == dirtTile2)
+        {
+
+            tilemap.SetTile(mouseCell, Dirt2crack1);
+            yield return new WaitForSeconds(0.2f);
+
+            tilemap.SetTile(mouseCell, Dirt2crack2);
+            yield return new WaitForSeconds(0.2f);
+
+            tilemap.SetTile(mouseCell, Dirt2crack3);
+            yield return new WaitForSeconds(0.2f);
+
+            tilemap.SetTile(mouseCell, minedTile);
+        }
+
+        if (hexMapData[mouseCell].Tile == dirtTile3)
+        {
+
+            tilemap.SetTile(mouseCell, Dirt3crack1);
+            yield return new WaitForSeconds(0.2f);
+
+            tilemap.SetTile(mouseCell, Dirt3crack2);
+            yield return new WaitForSeconds(0.2f);
+
+            tilemap.SetTile(mouseCell, Dirt3crack3);
+            yield return new WaitForSeconds(0.2f);
+
+            tilemap.SetTile(mouseCell, minedTile);
+        }
+
+        if (hexMapData[mouseCell].Tile == stoneTile) 
+        { 
+            tilemap.SetTile(mouseCell, minedTile);
+        }
+
+
 
         // Check for flooding
         Vector3Int[] floodNeighbors = getFloodNeighbors(mouseCell);
@@ -294,7 +353,7 @@ public class HexTilemapGenerator : MonoBehaviour
             {
                 if (CheckWaterTile(floodNeighbor))
                 {
-                    tilemap.SetTile(floodNeighbor, dirtTile); // Destroy water tile
+                    tilemap.SetTile(floodNeighbor, dirtTile1); // Destroy water tile
                     hexMapData[floodNeighbor].Tile = stoneTile; // Update dictionary
                     floodTiles(mouseCell);
                 }
@@ -312,30 +371,29 @@ public class HexTilemapGenerator : MonoBehaviour
         {
             return new Vector3Int[] 
             {
-                new Vector3Int(cell.x, cell.y + 1, 0), // Top Left
-                new Vector3Int(cell.x + 1, cell.y + 1, 0) // Top Right
+                new Vector3Int(cell.x - 1, cell.y + 1, 0), // Top Left
+                new Vector3Int(cell.x, cell.y + 1, 0) // Top Right
             };
         }
         else {
             return new Vector3Int[]
             {
-
-                new Vector3Int(cell.x - 1, cell.y + 1, 0), // Top Left
-                new Vector3Int(cell.x, cell.y + 1, 0) // Top Right
+                new Vector3Int(cell.x, cell.y + 1, 0), // Top Left
+                new Vector3Int(cell.x + 1, cell.y + 1, 0) // Top Right
             };
         }
     }
 
     public void floodTiles(Vector3Int cell)
     {
-        tilemap.SetTile(cell, dirtTile); //destroy water tile
+        tilemap.SetTile(cell, dirtTile1); //destroy water tile
         hexMapData[cell].Tile = stoneTile;
         
         Vector3Int[] neighbors = GetHexNeighbors(cell);
         foreach(Vector3Int neighbor in neighbors)
         {
-            tilemap.SetTile(neighbor, dirtTile);
-            hexMapData[neighbor].Tile = stoneTile;
+            tilemap.SetTile(neighbor, dirtTile1);
+            hexMapData[neighbor].Tile = dirtTile1;
         }
     }
       
@@ -357,18 +415,21 @@ public class HexTilemapGenerator : MonoBehaviour
         if (!hexMapData.TryGetValue(cell, out HexTileData tileData ))
             return false; // No tile present
 
-        if (hexMapData[cell].Tile != stoneTile && hexMapData[cell].Tile != dirtTile)
+        if (hexMapData[cell].Tile != stoneTile && !CheckDirtTile(cell))
         {
             Debug.Log("not stone or dirt tile cannot mine");
             return false;
         }
             
 
-            if (cell.y == 0)
+        if (cell.y == 0)
         {
-            if (tileData.Tile != dirtTile && tileData.Tile != stoneTile)
-                return false;
-            return true;
+            if (!CheckDirtTile(cell) && tileData.Tile != stoneTile)
+            {  return false; }
+            else { 
+                return true;
+            }
+            
         }
         
 
@@ -695,6 +756,18 @@ public class HexTilemapGenerator : MonoBehaviour
         if (hexMapData.TryGetValue(tile, out var tileData))
         {
             if (tileData.Tile == SpawnTile0 || tileData.Tile == SpawnTile25 || tileData.Tile == SpawnTile50 || tileData.Tile == SpawnTile75 || tileData.Tile == SpawnTile100)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool CheckDirtTile(Vector3Int tile)
+    {
+        if (hexMapData.TryGetValue(tile, out var tileData))
+        {
+            if (tileData.Tile == dirtTile1 || tileData.Tile == dirtTile2 || tileData.Tile == dirtTile3)
             {
                 return true;
             }
