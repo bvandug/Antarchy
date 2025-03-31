@@ -66,6 +66,9 @@ public class HexTilemapGenerator : MonoBehaviour
     public TextMeshProUGUI gameOverText;
     private bool gameOverTriggered = false;
     public Timer time;
+
+    // Keep track if satisfaction alert is playing
+    private bool isSatisfactionAlertPlaying = false;
     
     
 
@@ -1055,10 +1058,19 @@ public class HexTilemapGenerator : MonoBehaviour
         satisfactionRatio = (spaceRatio + foodRatio + waterRatio)/3;
         satisfactionProgressBar.maximum=100;
         satisfactionProgressBar.SetProgress((int)satisfactionRatio);
+        
+        if(satisfactionRatio > 50 && isSatisfactionAlertPlaying){
+            FindFirstObjectByType<AudioManager>().Pause("satisfactionAlert");
+            isSatisfactionAlertPlaying = false;
+        }
 
+        if(satisfactionRatio <= 50 && !isSatisfactionAlertPlaying) {
+            FindFirstObjectByType<AudioManager>().Play("satisfactionAlert");
+            isSatisfactionAlertPlaying = true;
+        }
         if (satisfactionRatio < 40 && !gameOverTriggered){
             
-
+            FindFirstObjectByType<AudioManager>().Pause("satisfactionAlert");
             TriggerGameOver("Satisfaction too low, the colony killed you!");
             Debug.Log("Game Over: Satisfaction too low!");
 

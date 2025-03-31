@@ -3859,6 +3859,18 @@ MonoBehaviour:
     pitch: 0.89
     loop: 0
     source: {fileID: 0}
+  - name: warHorn
+    clip: {fileID: 8300000, guid: dabe0bc3990534c04a62aaa6387fab5d, type: 3}
+    volume: 1
+    pitch: 0.89
+    loop: 0
+    source: {fileID: 0}
+  - name: satisfactionAlert
+    clip: {fileID: 8300000, guid: 14ef6079b765e4cc1b95f33667cc7fc4, type: 3}
+    volume: 1
+    pitch: 0.89
+    loop: 1
+    source: {fileID: 0}
 --- !u!4 &738352157
 Transform:
   m_ObjectHideFlags: 0

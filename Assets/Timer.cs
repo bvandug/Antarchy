@@ -15,6 +15,8 @@ public class Timer : MonoBehaviour
     public GameObject timeUpPanel;
     public bool isPaused = true;
     private Coroutine flashCoroutine;
+
+    private bool hasHornSounded = false;
     
 
     //Here is the AttackManager
@@ -33,12 +35,19 @@ public class Timer : MonoBehaviour
         elapsedTime  += Time.deltaTime;
         remainingTime = levelTime - elapsedTime; 
 
+        // battle sound
+        if (remainingTime <= 5 && !hasHornSounded) {
+            FindFirstObjectByType<AudioManager>().Play("warHorn");
+            hasHornSounded = true;
+        }
+
         if (remainingTime <= 0){
             remainingTime = 0;
             attackManager.ExecuteAttack();
             if (attackManager.gameOver == false){
                 ShowTimeUpPanel();
             }
+            hasHornSounded = false;
             
             
         }else if (remainingTime < 30)
