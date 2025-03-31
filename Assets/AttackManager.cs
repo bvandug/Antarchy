@@ -46,63 +46,18 @@ public class AttackManager : MonoBehaviour
     
     
 
-    // [SerializeField] private Image attackImage1; // UI Image
-    // [SerializeField] private Image attackImage2;
-    // [SerializeField] private Image attackImage3;
-
-
-    // Attack Sprites Dictionary
-    // [SerializeField] private Sprite termiteSprite;
-    // [SerializeField] private Sprite antEaterSprite;
-    // [SerializeField] private Sprite spiderSprite;
-    // [SerializeField] private Sprite lizardSprite;
-    // [SerializeField] private Sprite exterminatorSprite;
-    // private Dictionary<int, Sprite> attackSprites;
-    
-
     void Start()
     {
         ResetAvailableNumbers();
+        for (int i=1; i < 6; i++){
+            hideAttackerImage(i);
+        }
         DecideNextAttack();
         mapGenerator = FindFirstObjectByType<HexTilemapGenerator>(); 
         tilemap = mapGenerator.tilemap;
-    //     attackSprites = new Dictionary<int, Sprite>
-    //     {
-    //         { 1, termiteSprite },
-    //         { 2, antEaterSprite },
-    //         { 3, spiderSprite },
-    //         { 4, lizardSprite },
-    //         { 5, exterminatorSprite }
-    //     };
-
-    //     if (attackImage1 != null && attackImage2 != null && attackImage3 != null && attackSprites.Count > 0)
-    //     {
-    //     // Set a default sprite (using the first available one)
-    //     Sprite defaultSprite = attackSprites[1]; // Using termite as default
-    //     attackImage1.sprite = defaultSprite;
-    //     attackImage2.sprite = defaultSprite;
-    //     attackImage3.sprite = defaultSprite;
-    // }
-        
-       
-
+    
     }
-    // private void ShowAttackSprite(int attackType)
-    // {
-    //     if (attackSprites.ContainsKey(attackType))
-    //     {
-    //         // Show the correct sprite
-    //         attackImage1.sprite = attackSprites[attackType];
-    //         attackImage2.sprite = attackSprites[attackType];
-    //         attackImage3.sprite = attackSprites[attackType];
-    //         attackImage1.enabled = true;
-    //         attackImage2.enabled = true;
-    //         attackImage3.enabled = true;
-
-
-            
-    //     }
-    // }
+    
 
     public void DecideNextAttack(){
         attackCount++;
