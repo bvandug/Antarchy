@@ -10,7 +10,7 @@ public class Timer : MonoBehaviour
     [SerializeField] Color normalColor = Color.white;
     [SerializeField] Color warningColor = Color.red;
     float elapsedTime;
-    float levelTime = 60;
+    float levelTime = 30;
     float remainingTime;
     public GameObject timeUpPanel;
     public bool isPaused = true;
@@ -71,6 +71,10 @@ public class Timer : MonoBehaviour
         elapsedTime = 0;
         remainingTime = levelTime;
         timerText.color = normalColor;
+        if (flashCoroutine != null)
+            {
+        StopCoroutine(flashCoroutine);
+        flashCoroutine = null;}
     }
     private void ShowTimeUpPanel(){
         isPaused = true;
@@ -80,11 +84,10 @@ public class Timer : MonoBehaviour
     }
 
     public void OnTimeUpPanelOk(){
-
-        ResetTimer();
-        isPaused = false;
+        Time.timeScale = 1f; // Resume time
+        ResetTimer(); // Reset timer values
+        isPaused = false; // Unpause the timer
         timeUpPanel.SetActive(false);
-        Time.timeScale = 1f; // Resume if you paused it
 }
 
     private IEnumerator FlashText()
