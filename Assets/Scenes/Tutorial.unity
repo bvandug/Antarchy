@@ -2670,8 +2670,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 330585545}
-  tileHeight: 1.732
-  gridHeight: 50
 --- !u!1 &337455016
 GameObject:
   m_ObjectHideFlags: 0
@@ -10883,8 +10881,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Great! Keep clicking on the Food, water and nesting tiles as they regenerate
-    to fill up your bars and keep the colony happy!
+  m_text: Great! Keep clicking on the food, water and nesting tiles as they regenerate
+    to fill up your bars and keep the colony happy! If you want you can also use
+    hotkeys to collect resources- Q for spawning, W- water and F- food.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
   m_sharedMaterial: {fileID: -3975550156239310541, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
@@ -13201,6 +13200,21 @@ MonoBehaviour:
   attackDamage: {fileID: 573340797}
   attackHint: {fileID: 1715505331}
   toxic: {fileID: 11400000, guid: 2befec0306ea3af49a2bb73fd329336a, type: 2}
+  AntEater1: {fileID: 0}
+  Termite1: {fileID: 0}
+  Lizard1: {fileID: 0}
+  Exterminator1: {fileID: 0}
+  Spider1: {fileID: 0}
+  AntEater2: {fileID: 0}
+  Termite2: {fileID: 0}
+  Lizard2: {fileID: 0}
+  Exterminator2: {fileID: 0}
+  Spider2: {fileID: 0}
+  AntEater3: {fileID: 0}
+  Termite3: {fileID: 0}
+  Lizard3: {fileID: 0}
+  Exterminator3: {fileID: 0}
+  Spider3: {fileID: 0}
 --- !u!4 &1503367448
 Transform:
   m_ObjectHideFlags: 0

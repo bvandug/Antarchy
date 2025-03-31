@@ -187,7 +187,7 @@ public class HexTilemapGenerator : MonoBehaviour
 
     void EnsureFoodPlacement()
     {
-        for (int y = 5; y < height; y += 7)
+        for (int y = 5; y < height; y += 5)
         {
             int randomX = UnityEngine.Random.Range(0, width);
             int randomYOffset = UnityEngine.Random.Range(-3, 3);
@@ -206,7 +206,7 @@ public class HexTilemapGenerator : MonoBehaviour
         int randomStartX = UnityEngine.Random.Range(0, width);
         Vector3Int TilePosStart = new Vector3Int(randomStartX, -1, 0);
         tilemap.SetTile(TilePosStart, SpawnTile100);
-        hexMapData[TilePosStart].Tile = SpawnTile100;
+        hexMapData[TilePosStart].Tile = SpawnTile100;;
         //make surrounding tiles-> dirt
         Vector3Int[] neighbors = GetHexNeighbors(TilePosStart);
         foreach (Vector3Int neighbor in neighbors)
@@ -695,7 +695,7 @@ public class HexTilemapGenerator : MonoBehaviour
                 {
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
-                        tileData.FillLevel += 2f; // Increase fill level
+                        tileData.FillLevel += 5f; // Increase fill level
                         if (tileData.FillLevel <= 50f)
                         {
                             tilemap.SetTile(tilePos, WaterTile0);
@@ -728,7 +728,7 @@ public class HexTilemapGenerator : MonoBehaviour
                 {
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
-                        tileData.FillLevel += 2f; // Increase fill level
+                        tileData.FillLevel += 5f; // Increase fill level
                         if (tileData.FillLevel <= 50f)
                         {
                             tilemap.SetTile(tilePos, FoodTile0);

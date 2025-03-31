@@ -12,7 +12,7 @@ public class HexTileData
     public HexTileData(TileBase tile)
     {
         Tile = tile;
-        MaxFill = 200;
+        MaxFill = 100;
         FillLevel = 0f;
         IsActivated = false;
         IsDisabled = false;
