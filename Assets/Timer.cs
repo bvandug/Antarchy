@@ -50,7 +50,7 @@ public class Timer : MonoBehaviour
             hasHornSounded = false;
             
             
-        }else if (remainingTime < 30)
+        }else if (remainingTime < 10)
         {
             if (flashCoroutine == null) // Start flashing if not already started
             {
