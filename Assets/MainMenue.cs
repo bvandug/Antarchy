@@ -8,8 +8,11 @@ public class MainMenue : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     
     public void PlayGame(){
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex +1);
+        SceneManager.LoadScene("GameScene");
         
+    }
+    public void StartTutorial(){
+        SceneManager.LoadScene("Tutorial");
     }
 
     public void QuitGame(){
