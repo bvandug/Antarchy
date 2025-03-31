@@ -68,7 +68,7 @@ public class AttackManager : MonoBehaviour
 
         }else {
             mapGenerator.population -= nextAntsKilled;
-            remainingPopulation.text = string.Format(GetAttackName(nextAttackType)+ "killed " + nextAntsKilled + " ants");
+            remainingPopulation.text = string.Format(GetAttackName(nextAttackType)+ " killed " + nextAntsKilled + " ants");
             Debug.Log("Population after attack: " + mapGenerator.population + " ants");
 
 

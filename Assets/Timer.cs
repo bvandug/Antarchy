@@ -10,10 +10,10 @@ public class Timer : MonoBehaviour
     [SerializeField] Color normalColor = Color.white;
     [SerializeField] Color warningColor = Color.red;
     float elapsedTime;
-    float levelTime = 20;
+    float levelTime = 60;
     float remainingTime;
     public GameObject timeUpPanel;
-    private bool isPaused = false;
+    public bool isPaused = true;
     private Coroutine flashCoroutine;
     private bool isFlashing = false;
 

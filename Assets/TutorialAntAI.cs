@@ -3,15 +3,14 @@ using UnityEngine.Tilemaps;
 using System.Collections.Generic;
 using System.Collections;
 
-public class AntAI : MonoBehaviour
+public class TutorialAntAI : MonoBehaviour
 {
     public GameObject antSpritePrefab;
     public int antAICount = 0;
     
     private List<GameObject> antInstances = new List<GameObject>();
-    private Tilemap tilemap;
-    private HexTilemapGenerator mapGenerator;
-    private TutorialTilemapGenerator mapGenerator2;
+    public Tilemap tilemap;
+    public TutorialTilemapGenerator mapGenerator;
 
     // Population count from HexTileMapGen
     private int population; 
@@ -40,7 +39,7 @@ public class AntAI : MonoBehaviour
     
     void Start()
     {
-        mapGenerator = FindFirstObjectByType<HexTilemapGenerator>();
+        mapGenerator = FindFirstObjectByType<TutorialTilemapGenerator>();
         tilemap = mapGenerator.tilemap;
         population = (int)mapGenerator.population;
         minedBlockCount = mapGenerator.minedBlockCount;

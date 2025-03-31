@@ -7,37 +7,37 @@ using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
 using System.Threading.Tasks;
-using static UnityEngine.RuleTile.TilingRuleOutput;
-using Unity.VisualScripting;
+using UnityEngine.SceneManagement;
 
 
-public class HexTilemapGenerator : MonoBehaviour
+public class TutorialTilemapGenerator : MonoBehaviour
 {
+    public bool canStartMining = false;
     private int width = 28;
     private int height = 300;
     public Tilemap tilemap;
-    public TileBase dirtTile1, dirtTile2, dirtTile3,
-        stoneTile, minedTile,
+    public TileBase dirtTile, stoneTile, minedTile,
         WaterTile0, WaterTile25, WaterTile50, WaterTile75, WaterTile100,
         FoodTile0, FoodTile25, FoodTile50, FoodTile75, FoodTile100,
         CrackTile1, CrackTile2, CrackTile3,
-        Dirt2crack1, Dirt2crack2, Dirt2crack3,
-        Dirt3crack1, Dirt3crack2, Dirt3crack3,
-        SpawnTile0, SpawnTile25, SpawnTile50, SpawnTile75, SpawnTile100;
+        SpawnTile0, SpawnTile25, SpawnTile50, SpawnTile75, SpawnTile100,
+        highlightedTutorialTile;
 
     public float noiseScale = 0.3f; // Lower for bigger clusters
     public float stoneNoiseScale = 0.15f; // Stone uses separate noise for better clustering
     public float waterThreshold = 0.6f;
     public float stoneThreshold = 0.3f;
-    private int seed;
+    
     public int minedBlockCount =0;
     public ProgressBar foodProgressBar;
     public ProgressBar waterProgressBar;
     public ProgressBar populationProgressBar;
     public ProgressBar satisfactionProgressBar;
 
-    public Dictionary<Vector3Int, HexTileData> hexMapData = new Dictionary<Vector3Int, HexTileData>();
-
+    public Dictionary<Vector3Int, HexTileData> hexMapData = new Dictionary<Vector3Int, HexTileData>();  //important
+    private int currentTutorialStage = 0;
+    private Vector3Int[] tutorialTilePositions = new Vector3Int[4]; // To store the positions of tutorial tiles
+    private TileBase[] originalTileTypes = new TileBase[4]; //new 
     public float population = 50;
     private float food = 1000;
     private float water = 2000;
@@ -50,10 +50,10 @@ public class HexTilemapGenerator : MonoBehaviour
     //This code is to notify AntAI when the first tile has been mined.
     private bool firstBlockMined = false;
     public Vector3Int firstMinedBlockPosition;
-    public AntAI antAI; // Reference to AntAI script
+    public TutorialAntAI antAI; // Reference to AntAI script
 
     private float minAntsPerBlock = 5f;
-    private float maxAntsPerBlock = 10f;
+    private float maxAntsPerBlock = 30f;
 
     float spaceRatio=100;
     float foodRatio=100;
@@ -65,21 +65,26 @@ public class HexTilemapGenerator : MonoBehaviour
     public TextMeshProUGUI gameOverText;
     private bool gameOverTriggered = false;
     public Timer time;
-    
+    public GameObject mineFirstBlockPanel;
+    public GameObject mineSecondBlockPanel;
+    public GameObject mineThirdBlockPanel;
+    public GameObject mineFourthBlockPanel;
+    public GameObject regenerateResourcesPanel;
     
 
     void Start()
     {
         gameOverPanel.SetActive(false);
         cannotMinePanel.SetActive(false);
-        seed = UnityEngine.Random.Range(0, 10000);
-        GenerateMap(seed);
-        //GenerateDemo();
+        GenerateDemo();
         StartCoroutine(FillGenerators());
+        time.isPaused = true;
         //StartCoroutine(UpdateResourcesCoroutine());
         UpdateAntText();
+        SetupNextTutorialTile();
 
         FindFirstObjectByType<AudioManager>().Play("Theme");
+        
         
 
     }
@@ -116,54 +121,113 @@ public class HexTilemapGenerator : MonoBehaviour
             }
         }
     }
-
-    void GenerateMap(int seed)
+    public void startGame(){
+        canStartMining = true;
+        
+        
+    }
+        // Setup the next tutorial tile to be highlighted
+    private void SetupTutorialTilePositions()
     {
-        tilemap.ClearAllTiles();
-        hexMapData.Clear(); // Reset the dictionary
-
-        for (int y = 0; y < height; y++)
+        // Define the positions for each tutorial stage
+        // First row, specific column (change as needed)
+        tutorialTilePositions[0] = new Vector3Int(6, 0, 0);
+        
+        // Second row, specific column
+        tutorialTilePositions[1] = new Vector3Int(6, -1, 0);
+        
+        // Third row, specific column
+        tutorialTilePositions[2] = new Vector3Int(7, -2, 0);
+        tutorialTilePositions[3] = new Vector3Int(6,-3,0);
+        
+        // Store the original tile types
+        for (int i = 0; i < tutorialTilePositions.Length; i++)
         {
-            for (int x = 0; x < width; x++)
+            if (hexMapData.TryGetValue(tutorialTilePositions[i], out HexTileData tileData))
             {
-                float baseNoise = Mathf.PerlinNoise((x + seed) * noiseScale, (y + seed) * noiseScale);
-                float stoneNoise = Mathf.PerlinNoise((x + seed + 500) * stoneNoiseScale, (y + seed + 500) * stoneNoiseScale);
-
-                Vector3Int tilePosition = new Vector3Int(x, -y, 0);
-                TileBase selectedTile = dirtTile1;
-
-                if (baseNoise > waterThreshold)
-                    selectedTile = WaterTile100;
-                else if (stoneNoise > stoneThreshold)
-                    selectedTile = stoneTile;
-                else
-                {
-                    // Loop through dirt tiles every 30 rows (0-9 -> dirt1, 10-19 -> dirt2, 20-29 -> dirt3, then repeat)
-                    switch ((y / 10) % 3)
-                    {
-                        case 0:
-                            selectedTile = dirtTile1;
-                            break;
-                        case 1:
-                            selectedTile = dirtTile2;
-                            break;
-                        case 2:
-                            selectedTile = dirtTile3;
-                            break;
-                    }
-                }
-
-                tilemap.SetTile(tilePosition, selectedTile);
-                hexMapData[tilePosition] = new HexTileData(selectedTile);
+                originalTileTypes[i] = tileData.Tile;
             }
         }
-
-        EnsureFoodPlacement();
-        EnsureSpawnPlacement();
     }
+    private void SetupNextTutorialTile()
+    {
+    // If this is the first call, set up the positions
+    if (currentTutorialStage == 0 && tutorialTilePositions[0] == Vector3Int.zero)
+    {
+        SetupTutorialTilePositions();
+    }
+    
+    // Ensure we don't go out of bounds
+    if (currentTutorialStage < tutorialTilePositions.Length)
+    {
+        Vector3Int tilePos = tutorialTilePositions[currentTutorialStage];
+        
+        // Highlight the tutorial tile visually
+        tilemap.SetTile(tilePos, highlightedTutorialTile);
+        
+        // Update the dictionary to match the visual state
+        if (hexMapData.TryGetValue(tilePos, out HexTileData tileData))
+        {
+            // Store the original tile type but update the current tile reference
+            originalTileTypes[currentTutorialStage] = tileData.Tile;
+            tileData.Tile = highlightedTutorialTile;
+            hexMapData[tilePos] = tileData;
+        }
+        
+        Debug.Log($"Tutorial stage {currentTutorialStage + 1}: Highlighted tile at {tilePos}");
+    }
+}
+    
+
+    private void ProgressTutorial()
+    {
+        // Restore the current tutorial tile to its original appearance and update dictionary
+        if (currentTutorialStage < tutorialTilePositions.Length)
+        {
+            Vector3Int currentPos = tutorialTilePositions[currentTutorialStage];
+            tilemap.SetTile(currentPos, minedTile); // Set to mined visually
+            
+            // This is the key fix - update the dictionary to match the visual state
+            if (hexMapData.TryGetValue(currentPos, out HexTileData tileData))
+            {
+                tileData.Tile = minedTile; // Update the reference in the dictionary
+                hexMapData[currentPos] = tileData;
+            }
+        }
+        if (currentTutorialStage == 1){
+            mineThirdBlockPanel.SetActive(true);
+            mineSecondBlockPanel.SetActive(false);
+        }
+        else if (currentTutorialStage == 2){
+            mineThirdBlockPanel.SetActive(false);
+            mineFourthBlockPanel.SetActive(true);
+        }
+        else if(currentTutorialStage == 3){
+            mineFourthBlockPanel.SetActive(false);
+            regenerateResourcesPanel.SetActive(true);
+        }
+        
+        // Move to the next stage
+        currentTutorialStage++;
+        
+        
+        // Setup the next tile if we're not done
+        if (currentTutorialStage < tutorialTilePositions.Length)
+        {
+            SetupNextTutorialTile();
+        }
+        else
+        {
+            Debug.Log("Tutorial completed! Normal mining can now begin.");
+            // Any code for transitioning from tutorial to normal play
+        }
+    }
+    
 
 
-    void GenerateDemo(int seed =1)
+
+    
+    void GenerateDemo(int seed = 1)
     {
         tilemap.ClearAllTiles();
         hexMapData.Clear(); // Reset the dictionary
@@ -183,13 +247,13 @@ public class HexTilemapGenerator : MonoBehaviour
                 else if (stoneNoise > stoneThreshold)
                     selectedTile = stoneTile;
                 else
-                    selectedTile = dirtTile1;
+                    selectedTile = dirtTile;
 
-                tilemap.SetTile(tilePosition, selectedTile);
-                hexMapData[tilePosition] = new HexTileData(selectedTile);
+                tilemap.SetTile(tilePosition, selectedTile);  //changes tile IRL
+                hexMapData[tilePosition] = new HexTileData(selectedTile); //updating d
 
             }
-            Vector3Int Food1  = new Vector3Int(3, -(3), 0);
+            Vector3Int Food1  = new Vector3Int(5, -(3), 0); //3,4
             tilemap.SetTile(Food1, FoodTile100);
             hexMapData[Food1] = new HexTileData(FoodTile100);
 
@@ -197,7 +261,7 @@ public class HexTilemapGenerator : MonoBehaviour
             tilemap.SetTile(Spawn, SpawnTile100);
             hexMapData[Spawn] = new HexTileData(SpawnTile100);
 
-            Vector3Int Water1 = new Vector3Int(8, -(4), 0);
+            Vector3Int Water1 = new Vector3Int(7, -(3), 0);
             tilemap.SetTile(Water1, WaterTile100);
             hexMapData[Water1] = new HexTileData(WaterTile100);
         }
@@ -205,65 +269,18 @@ public class HexTilemapGenerator : MonoBehaviour
         
     }
 
-
-
-    void EnsureFoodPlacement()
-    {
-        for (int y = 5; y < height; y += 7)
-        {
-            int randomX = UnityEngine.Random.Range(0, width);
-            int randomYOffset = UnityEngine.Random.Range(-3, 3);
-            int clampedY = Mathf.Clamp(y + randomYOffset, 0, height-1);
-
-            Vector3Int tilePosition = new Vector3Int(randomX, -clampedY, 0);
-            tilemap.SetTile(tilePosition, FoodTile100);
-            hexMapData[tilePosition].Tile = FoodTile100;
-        }
-    }
-
-
-    void EnsureSpawnPlacement()
-    {
-        //ensure spawn with ant nest on row 2 with surronding stone
-        int randomStartX = UnityEngine.Random.Range(0, width);
-        Vector3Int TilePosStart = new Vector3Int(randomStartX, -1, 0);
-        tilemap.SetTile(TilePosStart, SpawnTile100);
-        hexMapData[TilePosStart].Tile = SpawnTile100;
-        //make surrounding tiles-> dirt
-        Vector3Int[] neighbors = GetHexNeighbors(TilePosStart);
-        foreach (Vector3Int neighbor in neighbors)
-        {
-            if (hexMapData.TryGetValue(neighbor, out HexTileData tileData1))
-            {
-                if (tileData1.Tile != dirtTile1) // Ensure at least one adjacent mined tile
-                {
-                    tilemap.SetTile(neighbor, dirtTile1);
-                    hexMapData[neighbor].Tile = dirtTile1;
-                }
-            }
-        }
-
-        for (int y = 10; y < height; y += 15)
-        {
-            int randomX = UnityEngine.Random.Range(0, width);
-            int randomYOffset = UnityEngine.Random.Range(-3, 3);
-            int clampedY = Mathf.Clamp(y + randomYOffset, 0, height-1);
-            Vector3Int tilePosition = new Vector3Int(randomX, -(clampedY), 0);
-            tilemap.SetTile(tilePosition, SpawnTile100);
-            hexMapData[tilePosition].Tile = SpawnTile100;
-
-        }
-    }
-
     void MineBlock(Vector3Int mouseCell)
     {
         int costToMine = GetMiningCost(mouseCell);
+        bool isTutorialTile = currentTutorialStage < tutorialTilePositions.Length && 
+                              mouseCell == tutorialTilePositions[currentTutorialStage];
 
-        if (tilemap.HasTile(mouseCell) && CanMineTile(mouseCell))
+
+        if (tilemap.HasTile(mouseCell) && (isTutorialTile || (CanMineTile(mouseCell) && currentTutorialStage >= tutorialTilePositions.Length)) && canStartMining)
         {
-            if (population <= costToMine)
+            if (population == costToMine)
             {
-                StartCoroutine(BannerRoutine());
+                cannotMinePanel.SetActive(true);
             }
             else if (population > costToMine)
             {
@@ -278,19 +295,40 @@ public class HexTilemapGenerator : MonoBehaviour
                 CheckResourceTile(mouseCell);
                 FindFirstObjectByType<AudioManager>().Play("DigTunnel");
 
+                // Check for flooding
+                Vector3Int[] floodNeighbors = getFloodNeighbors(mouseCell);
+                foreach (Vector3Int floodNeighbor in floodNeighbors)
+                {
+                    if (hexMapData.TryGetValue(floodNeighbor, out HexTileData neighborTile))
+                    {
+                        if (CheckWaterTile(floodNeighbor))
+                        {
+                            tilemap.SetTile(floodNeighbor, dirtTile); // Destroy water tile
+                            hexMapData[floodNeighbor].Tile = stoneTile; // Update dictionary
+                            floodTiles(mouseCell);
+                        }
+                    }
+                }
+
                 if (!firstBlockMined)
                 {
                     time.isPaused = false;
-                    StartCoroutine(UpdateResourcesCoroutine());
-
                     firstBlockMined = true;
+                    StartCoroutine(UpdateResourcesCoroutine());
                     firstMinedBlockPosition = mouseCell;
+                    ProgressTutorial();
+                    mineFirstBlockPanel.SetActive(false);
+                    mineSecondBlockPanel.SetActive(true);
 
                     // Notify AntAI about the first mined block
                     if (antAI != null)
                     {
                         antAI.OnFirstBlockMined(mouseCell);
                     }
+                }
+                else if (isTutorialTile)
+                {
+                    ProgressTutorial();
                 }
             }
         }
@@ -299,70 +337,16 @@ public class HexTilemapGenerator : MonoBehaviour
     // Coroutine for delayed tile updates
     private IEnumerator MineTileWithDelay(Vector3Int mouseCell)
     {
-        if (hexMapData[mouseCell].Tile == dirtTile1 )
-        {
+        tilemap.SetTile(mouseCell, CrackTile1);
+        yield return new WaitForSeconds(0.2f);
 
-            tilemap.SetTile(mouseCell, CrackTile1);
-            yield return new WaitForSeconds(0.2f);
+        tilemap.SetTile(mouseCell, CrackTile2);
+        yield return new WaitForSeconds(0.2f);
 
-            tilemap.SetTile(mouseCell, CrackTile2);
-            yield return new WaitForSeconds(0.2f);
+        tilemap.SetTile(mouseCell, CrackTile3);
+        yield return new WaitForSeconds(0.2f);
 
-            tilemap.SetTile(mouseCell, CrackTile3);
-            yield return new WaitForSeconds(0.2f);
-
-            tilemap.SetTile(mouseCell, minedTile);
-        }
-
-        if (hexMapData[mouseCell].Tile == dirtTile2)
-        {
-
-            tilemap.SetTile(mouseCell, Dirt2crack1);
-            yield return new WaitForSeconds(0.2f);
-
-            tilemap.SetTile(mouseCell, Dirt2crack2);
-            yield return new WaitForSeconds(0.2f);
-
-            tilemap.SetTile(mouseCell, Dirt2crack3);
-            yield return new WaitForSeconds(0.2f);
-
-            tilemap.SetTile(mouseCell, minedTile);
-        }
-
-        if (hexMapData[mouseCell].Tile == dirtTile3)
-        {
-
-            tilemap.SetTile(mouseCell, Dirt3crack1);
-            yield return new WaitForSeconds(0.2f);
-
-            tilemap.SetTile(mouseCell, Dirt3crack2);
-            yield return new WaitForSeconds(0.2f);
-
-            tilemap.SetTile(mouseCell, Dirt3crack3);
-            yield return new WaitForSeconds(0.2f);
-
-            tilemap.SetTile(mouseCell, minedTile);
-        }
-
-        if (hexMapData[mouseCell].Tile == stoneTile) 
-        { 
-            tilemap.SetTile(mouseCell, minedTile);
-        }
-
-
-
-        // Check for flooding
-        Vector3Int[] floodNeighbors = getFloodNeighbors(mouseCell);
-        foreach (Vector3Int floodNeighbor in floodNeighbors)
-        {
-            if (hexMapData.TryGetValue(floodNeighbor, out HexTileData neighborTile))
-            {
-                if (CheckWaterTile(floodNeighbor))
-                {
-                    StartCoroutine(FloodTiles(floodNeighbor));
-                }
-            }
-        }
+        tilemap.SetTile(mouseCell, minedTile);
     }
 
 
@@ -388,44 +372,16 @@ public class HexTilemapGenerator : MonoBehaviour
         }
     }
 
-    private IEnumerator FloodTiles(Vector3Int cell)
+    public void floodTiles(Vector3Int cell)
     {
-        hexMapData[cell].Tile = dirtTile1;
-        tilemap.SetTile(cell, WaterTile100); //destroy water tile
-        yield return new WaitForSeconds(0.3f);
-        Vector3Int[] firstwave = FindFirstFloodTiles(cell);
-        Vector3Int[] secondwave = FindSecondFloodTiles(cell);
-
-        foreach(Vector3Int floodTile1 in firstwave)
+        tilemap.SetTile(cell, dirtTile); //destroy water tile
+        hexMapData[cell].Tile = stoneTile;
+        
+        Vector3Int[] neighbors = GetHexNeighbors(cell);
+        foreach(Vector3Int neighbor in neighbors)
         {
-            tilemap.SetTile(floodTile1, WaterTile100);
-            hexMapData[floodTile1].Tile = dirtTile1;
-        }
-        yield return new WaitForSeconds(0.3f);
-
-        foreach (Vector3Int floodTile2 in secondwave)
-        {
-            tilemap.SetTile(floodTile2, WaterTile100);
-            hexMapData[floodTile2].Tile = dirtTile1;
-        }
-
-        yield return new WaitForSeconds(0.3f);
-
-        tilemap.SetTile(cell, dirtTile1); //destroy water tile
-        yield return new WaitForSeconds(0.3f);
-
-        foreach (Vector3Int floodTile1 in firstwave)
-        {
-            tilemap.SetTile(floodTile1, dirtTile1);
-            hexMapData[floodTile1].Tile = dirtTile1;
-        }
-
-        yield return new WaitForSeconds(0.3f);
-
-        foreach (Vector3Int floodTile2 in secondwave)
-        {
-            tilemap.SetTile(floodTile2, dirtTile1);
-            hexMapData[floodTile2].Tile = dirtTile1;
+            tilemap.SetTile(neighbor, dirtTile);
+            hexMapData[neighbor].Tile = stoneTile;
         }
     }
       
@@ -444,24 +400,25 @@ public class HexTilemapGenerator : MonoBehaviour
 
     public bool CanMineTile(Vector3Int cell)
     {
+        if (currentTutorialStage < tutorialTilePositions.Length)
+        {
+            return cell == tutorialTilePositions[currentTutorialStage];
+        }
         if (!hexMapData.TryGetValue(cell, out HexTileData tileData ))
             return false; // No tile present
 
-        if (hexMapData[cell].Tile != stoneTile && !CheckDirtTile(cell))
+        if (hexMapData[cell].Tile != stoneTile && hexMapData[cell].Tile != dirtTile)
         {
             Debug.Log("not stone or dirt tile cannot mine");
             return false;
         }
             
 
-        if (cell.y == 0)
+            if (cell.y == 0)
         {
-            if (!CheckDirtTile(cell) && tileData.Tile != stoneTile)
-            {  return false; }
-            else { 
-                return true;
-            }
-            
+            if (tileData.Tile != dirtTile && tileData.Tile != stoneTile)
+                return false;
+            return true;
         }
         
 
@@ -514,112 +471,7 @@ public class HexTilemapGenerator : MonoBehaviour
         }
     }
 
-    //this just returns number coords not actual tiles
-    public Vector3Int[] FindFirstFloodTiles(Vector3Int cell)
-    {
-        bool isEvenRow = (cell.y % 2 == 0);
-        List<Vector3Int> validTiles = new List<Vector3Int>();
-        Vector3Int[] potentialTiles;
-
-        if (isEvenRow)
-        {
-            potentialTiles = new Vector3Int[]
-            {
-                new Vector3Int(cell.x - 1, cell.y, 0), // Left
-                new Vector3Int(cell.x + 1, cell.y, 0), // Right
-                new Vector3Int(cell.x - 1, cell.y - 1, 0), // Bottom Left
-                new Vector3Int(cell.x, cell.y - 1, 0), // Bottom Right
-            };
-        }
-        else
-        {
-            potentialTiles = new Vector3Int[]
-            {
-                new Vector3Int(cell.x - 1, cell.y, 0), // Left
-                new Vector3Int(cell.x + 1, cell.y, 0), // Right
-                new Vector3Int(cell.x, cell.y - 1, 0), // Bottom Left
-                new Vector3Int(cell.x + 1, cell.y - 1, 0), // Bottom Right
-            };
-        }
-
-        // Filter out tiles that are out of bounds
-        foreach (var tile in potentialTiles)
-        {
-            if (tile.x >= 0 && tile.x < width)
-            {
-                validTiles.Add(tile);
-            }
-        }
-
-        return validTiles.ToArray();
-    }
-
-
-    public Vector3Int[] FindSecondFloodTiles(Vector3Int cell)
-    {
-        bool isEvenRow = (cell.y % 2 == 0);
-        List<Vector3Int> validTiles = new List<Vector3Int>();
-
-        Vector3Int[] potentialTiles;
-
-        if (isEvenRow)
-        {
-            Debug.LogFormat("EVEN ROW");
-            potentialTiles = new Vector3Int[]
-            {
-                new Vector3Int(cell.x - 2, cell.y, 0), // Left -> Left
-                new Vector3Int(cell.x + 2, cell.y, 0), // Right -> Right
-
-                new Vector3Int(cell.x, cell.y - 2, 0), // Bottom Left -> Bottom Left
-                new Vector3Int(cell.x + 1, cell.y - 2, 0), // Bottom Left -> Right
-
-                new Vector3Int(cell.x - 2, cell.y - 1, 0), // Bottom Left ->left
-                new Vector3Int(cell.x+1, cell.y - 1, 0), // Bottom Right -> right
-
-                new Vector3Int(cell.x - 1, cell.y - 2, 0), // Bottom Right -> Bottom Right
-            };
-        }
-        else
-        {
-            Debug.LogFormat("ODD ROW");
-            potentialTiles = new Vector3Int[]
-            {
-                /*
-                new Vector3Int(cell.x - 1, cell.y, 0), // Left
-                new Vector3Int(cell.x + 1, cell.y, 0), // Right
-                new Vector3Int(cell.x, cell.y - 1, 0), // Bottom Left
-                new Vector3Int(cell.x + 1, cell.y - 1, 0), // Bottom Right
-                */
-
-                new Vector3Int(cell.x - 2, cell.y, 0), // Left-> Left
-                new Vector3Int(cell.x + 2, cell.y, 0), // Right-> Right
-
-                new Vector3Int(cell.x - 1, cell.y - 2, 0), // Bottom Left -> Bottom Left
-                new Vector3Int(cell.x-1, cell.y - 1, 0), // Bottom Left -> right
-                new Vector3Int(cell.x, cell.y-2, 0), // Bottom Left -> Bottom Left
-                //new Vector3Int(cell.x, cell.y - 1, 0), // Bottom Left
-
-                new Vector3Int(cell.x + 1, cell.y - 1, 0), // Bottom Right -> Left
-                new Vector3Int(cell.x + 2, cell.y - 1, 0), // Bottom Right -> right
-                new Vector3Int(cell.x + 1, cell.y - 2, 0), // Bottom Right -> Bottom Right
-            };
-        }
-
-        // Filter out tiles that are out of bounds
-        foreach (var tile in potentialTiles)
-        {
-            if (tile.x >= 0 && tile.x < width)
-            {
-                validTiles.Add(tile);
-            }
-        }
-
-        return validTiles.ToArray();
-    }
-
-
-
-
+    
     // This method checks whether a tile has been mined or not
     public bool IsTileMined(Vector3Int cell)
     {
@@ -900,24 +752,6 @@ public class HexTilemapGenerator : MonoBehaviour
         return false;
     }
 
-    IEnumerator BannerRoutine(){
-        cannotMinePanel.SetActive(true);
-        yield return new WaitForSeconds(3f);
-        cannotMinePanel.SetActive(false);
-    }
-
-    public bool CheckDirtTile(Vector3Int tile)
-    {
-        if (hexMapData.TryGetValue(tile, out var tileData))
-        {
-            if (tileData.Tile == dirtTile1 || tileData.Tile == dirtTile2 || tileData.Tile == dirtTile3)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
     //UI
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     public void UpdateProgressBars(){
@@ -957,33 +791,33 @@ public class HexTilemapGenerator : MonoBehaviour
     
 
 
-    // public void UpdatePopulationBar(){
-    //     populationProgressBar.maximum = 100;
+    public void UpdatePopulationBar(){
+        populationProgressBar.maximum = 100;
         
-    //     if (minedBlockCount == 0)
-    // {
-    //     spaceRatio = 100;
-    //     populationProgressBar.SetProgress(100); // Avoid divide-by-zero, no space yet
-    //     return;
-    // }
+        if (minedBlockCount == 0)
+    {
+        spaceRatio = 100;
+        populationProgressBar.SetProgress(100); // Avoid divide-by-zero, no space yet
+        return;
+    }
 
-    //     float avgAntsPerBlock = (float)population / minedBlockCount;
-    //         if (avgAntsPerBlock <= minAntsPerBlock){
-    //             spaceRatio = 100;
-    //             populationProgressBar.SetProgress(100);  // Full space
-    // }
-    //         else if (avgAntsPerBlock >= maxAntsPerBlock)
-    // {
-    //             spaceRatio = 0;
-    //             populationProgressBar.SetProgress(0); // No space
-    // }
-    //          else{
-    //             float overuseRatio = (avgAntsPerBlock - minAntsPerBlock) / (maxAntsPerBlock - minAntsPerBlock);
-    //             spaceRatio = Mathf.Clamp01(1f - overuseRatio) * 100f;
-    //             populationProgressBar.SetProgress((int)spaceRatio);
-    //             }
+        float avgAntsPerBlock = (float)population / minedBlockCount;
+            if (avgAntsPerBlock <= minAntsPerBlock){
+                spaceRatio = 100;
+                populationProgressBar.SetProgress(100);  // Full space
+    }
+            else if (avgAntsPerBlock >= maxAntsPerBlock)
+    {
+                spaceRatio = 0;
+                populationProgressBar.SetProgress(0); // No space
+    }
+             else{
+                float overuseRatio = (avgAntsPerBlock - minAntsPerBlock) / (maxAntsPerBlock - minAntsPerBlock);
+                spaceRatio = Mathf.Clamp01(1f - overuseRatio) * 100f;
+                populationProgressBar.SetProgress((int)spaceRatio);
+                }
 
-    // }
+    }
 
     public void UpdateSatisfaction(){
 
@@ -991,7 +825,7 @@ public class HexTilemapGenerator : MonoBehaviour
         satisfactionProgressBar.maximum=100;
         satisfactionProgressBar.SetProgress((int)satisfactionRatio);
 
-        if (satisfactionRatio < 40 && !gameOverTriggered){
+        if (satisfactionRatio < 30 && !gameOverTriggered){
             
 
             TriggerGameOver("Satisfaction too low, the colony killed you!");
@@ -1024,8 +858,15 @@ public class HexTilemapGenerator : MonoBehaviour
         }
     }
 
+    public void PlayGame(){
+        SceneManager.LoadScene("GameScene");
+        
+    }
+
 
 }
+
+
 
 
 
