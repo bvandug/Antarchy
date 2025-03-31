@@ -10649,7 +10649,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -28.404541, y: 16.989014}
+  m_AnchoredPosition: {x: -28.404663, y: 16.989014}
   m_SizeDelta: {x: -761.224, y: -405.263}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1267986997
@@ -12454,7 +12454,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canStartMining: 0
   tilemap: {fileID: 860469937}
-  dirtTile: {fileID: 11400000, guid: dc8d0a2ddb517d4469bf870e8d2ed6ee, type: 2}
+  dirtTile: {fileID: 11400000, guid: 50d2c4d0ba132474fbf50d8cc2da3117, type: 2}
   stoneTile: {fileID: 11400000, guid: 6607ff6ab7bc6d84a8553ca958cde156, type: 2}
   minedTile: {fileID: 11400000, guid: cf8a12cf56e0753459449e664f3e5423, type: 2}
   WaterTile0: {fileID: 11400000, guid: d799f2738292c7f4bbe614c8db2440e0, type: 2}

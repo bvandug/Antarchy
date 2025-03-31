@@ -4128,7 +4128,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maximum: 100
-  current: 90
+  current: 100
   mask: {fileID: 1602975464}
   fillImage: {fileID: 20278855}
   lowColor: {r: 1, g: 0, b: 0, a: 1}
@@ -5608,7 +5608,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -28.404297, y: 16.989014}
+  m_AnchoredPosition: {x: -28.404236, y: 16.989014}
   m_SizeDelta: {x: -761.224, y: -405.263}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1267986997
@@ -7574,7 +7574,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 0.9
+  m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
