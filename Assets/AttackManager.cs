@@ -157,7 +157,7 @@ public class AttackManager : MonoBehaviour
             
 
         }
-        DecideNextAttack();
+        //DecideNextAttack();
     }
 
     private void TriggerAttack(int attackType){

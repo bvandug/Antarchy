@@ -88,6 +88,7 @@ public class Timer : MonoBehaviour
         ResetTimer(); // Reset timer values
         isPaused = false; // Unpause the timer
         timeUpPanel.SetActive(false);
+        attackManager.DecideNextAttack();
 }
 
     private IEnumerator FlashText()
