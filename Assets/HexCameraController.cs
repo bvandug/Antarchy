@@ -4,7 +4,7 @@ public class HexCameraController : MonoBehaviour
 {
     public Camera cam;
     private float scrollSpeed = 10f;   // Speed of vertical scrolling
-    private float tileHeight = 0.6f; // Approximate height of a hex tile
+    private float tileHeight = 0.75f; // Approximate height of a hex tile
     private int gridHeight = 300;      // Number of hex rows
 
     private float minY;
