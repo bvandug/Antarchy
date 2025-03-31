@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 
 public class AttackManager : MonoBehaviour
@@ -24,36 +25,161 @@ public class AttackManager : MonoBehaviour
     private int previousNumber = -1;
     private int currentNumber = -1;
     public TileBase toxic;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+    public GameObject AntEater1;
+    public GameObject Termite1;
+    public GameObject Lizard1;
+    public GameObject Exterminator1;
+    public GameObject Spider1;
+
+    public GameObject AntEater2;
+    public GameObject Termite2;
+    public GameObject Lizard2;
+    public GameObject Exterminator2;
+    public GameObject Spider2;
+
+    public GameObject AntEater3;
+    public GameObject Termite3;
+    public GameObject Lizard3;
+    public GameObject Exterminator3;
+    public GameObject Spider3;
+    
+    
+
+    // [SerializeField] private Image attackImage1; // UI Image
+    // [SerializeField] private Image attackImage2;
+    // [SerializeField] private Image attackImage3;
+
+
+    // Attack Sprites Dictionary
+    // [SerializeField] private Sprite termiteSprite;
+    // [SerializeField] private Sprite antEaterSprite;
+    // [SerializeField] private Sprite spiderSprite;
+    // [SerializeField] private Sprite lizardSprite;
+    // [SerializeField] private Sprite exterminatorSprite;
+    // private Dictionary<int, Sprite> attackSprites;
+    
+
     void Start()
     {
         ResetAvailableNumbers();
         DecideNextAttack();
         mapGenerator = FindFirstObjectByType<HexTilemapGenerator>(); 
         tilemap = mapGenerator.tilemap;
+    //     attackSprites = new Dictionary<int, Sprite>
+    //     {
+    //         { 1, termiteSprite },
+    //         { 2, antEaterSprite },
+    //         { 3, spiderSprite },
+    //         { 4, lizardSprite },
+    //         { 5, exterminatorSprite }
+    //     };
+
+    //     if (attackImage1 != null && attackImage2 != null && attackImage3 != null && attackSprites.Count > 0)
+    //     {
+    //     // Set a default sprite (using the first available one)
+    //     Sprite defaultSprite = attackSprites[1]; // Using termite as default
+    //     attackImage1.sprite = defaultSprite;
+    //     attackImage2.sprite = defaultSprite;
+    //     attackImage3.sprite = defaultSprite;
+    // }
+        
        
 
     }
+    // private void ShowAttackSprite(int attackType)
+    // {
+    //     if (attackSprites.ContainsKey(attackType))
+    //     {
+    //         // Show the correct sprite
+    //         attackImage1.sprite = attackSprites[attackType];
+    //         attackImage2.sprite = attackSprites[attackType];
+    //         attackImage3.sprite = attackSprites[attackType];
+    //         attackImage1.enabled = true;
+    //         attackImage2.enabled = true;
+    //         attackImage3.enabled = true;
+
+
+            
+    //     }
+    // }
 
     public void DecideNextAttack(){
         attackCount++;
-        if (attackCount == 1) {
-            nextAntsKilled = 25;
-            nextAttackType = 5;
-        }if (attackCount == 2)
-        {
-            nextAntsKilled = 50;
-            nextAttackType = 5;
-        }
-        else
-        {
-            nextAntsKilled = 1 * attackCount * attackCount;
-            nextAttackType = UnityEngine.Random.Range(1, 6);
-        }
-        populationNeeded.text = string.Format("Population Needed: "+ nextAntsKilled + " ants");
+        nextAntsKilled = 5 * attackCount * attackCount;
+        hideAttackerImage(nextAttackType);
         nextAttackType = GetNextNumber();
+        showAttackerImage(nextAttackType);
+        populationNeeded.text = string.Format("Population Needed: "+ nextAntsKilled + " ants");
         attackerName.text = string.Format("Next Attacker: "+ GetAttackName(nextAttackType));
         attackHint.text = string.Format("Hint: "+ GetAttackDamage(nextAttackType));
+        
+
+    }
+
+    public void showAttackerImage(int attackType){
+        switch (attackType)
+        {
+            case 1: 
+                Termite1.SetActive(true);
+                Termite2.SetActive(true);
+                Termite3.SetActive(true);
+                break;
+            case 2: 
+                AntEater1.SetActive(true);
+                AntEater2.SetActive(true);
+                AntEater3.SetActive(true);
+                break;
+            case 3: 
+                Spider1.SetActive(true);
+                Spider2.SetActive(true);
+                Spider3.SetActive(true);
+                break;
+            case 4: 
+                Lizard1.SetActive(true);
+                Lizard2.SetActive(true);
+                Lizard3.SetActive(true);
+                break;
+            case 5: 
+                Exterminator1.SetActive(true);
+                Exterminator2.SetActive(true);
+                Exterminator3.SetActive(true);
+                break;
+            default: break;
+        }
+
+    }
+
+    public void hideAttackerImage(int attackType){
+        switch (attackType)
+        {
+            case 1: 
+                Termite1.SetActive(false);
+                Termite2.SetActive(false);
+                Termite3.SetActive(false);
+                break;
+            case 2: 
+                AntEater1.SetActive(false);
+                AntEater2.SetActive(false);
+                AntEater3.SetActive(false);
+                break;
+            case 3: 
+                Spider1.SetActive(false);
+                Spider2.SetActive(false);
+                Spider3.SetActive(false);
+                break;
+            case 4: 
+                Lizard1.SetActive(false);
+                Lizard2.SetActive(false);
+                Lizard3.SetActive(false);
+                break;
+            case 5: 
+                Exterminator1.SetActive(false);
+                Exterminator2.SetActive(false);
+                Exterminator3.SetActive(false);
+                break;
+            default: break;
+        }
 
     }
 
@@ -82,7 +208,7 @@ public class AttackManager : MonoBehaviour
     private void TriggerAttack(int attackType){
         switch (attackType)
         {
-            case 1: break;
+            case 1: termiteAttack(); break;
             case 2: antEaterAttack(); break;
             case 3: spiderAttack(); break;
             case 4: lizardAttack(); break;
@@ -118,7 +244,6 @@ public class AttackManager : MonoBehaviour
 
 
     
-    /*
     void termiteAttack() 
     {
         attackDamage.text = string.Format("The Termite ate all the food from your food supplies");
@@ -135,7 +260,7 @@ public class AttackManager : MonoBehaviour
 
 
         Debug.Log("Attack1");
-    }*/
+    }
 
     void antEaterAttack()
     {

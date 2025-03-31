@@ -54,7 +54,7 @@ public class HexTilemapGenerator : MonoBehaviour
     public AntAI antAI; // Reference to AntAI script
 
     private float minAntsPerBlock = 5f;
-    private float maxAntsPerBlock = 10f;
+    private float maxAntsPerBlock = 20;
 
     float spaceRatio=100;
     float foodRatio=100;
@@ -989,7 +989,7 @@ public class HexTilemapGenerator : MonoBehaviour
 
         
         UpdateResourceBar();
-        //UpdatePopulationBar();
+        UpdatePopulationBar();
         UpdateSatisfaction();
     
     }
@@ -1019,36 +1019,36 @@ public class HexTilemapGenerator : MonoBehaviour
 
     }
 
+    public void UpdatePopulationBar(){
+    populationProgressBar.maximum = 100;
     
+    if (minedBlockCount <=10)
+    {
+        spaceRatio = 100;
+        populationProgressBar.SetProgress(100); // Avoid divide-by-zero, no space yet
+        return;
+    }
 
-
-    // public void UpdatePopulationBar(){
-    //     populationProgressBar.maximum = 100;
-        
-    //     if (minedBlockCount == 0)
-    // {
-    //     spaceRatio = 100;
-    //     populationProgressBar.SetProgress(100); // Avoid divide-by-zero, no space yet
-    //     return;
-    // }
-
-    //     float avgAntsPerBlock = (float)population / minedBlockCount;
-    //         if (avgAntsPerBlock <= minAntsPerBlock){
-    //             spaceRatio = 100;
-    //             populationProgressBar.SetProgress(100);  // Full space
-    // }
-    //         else if (avgAntsPerBlock >= maxAntsPerBlock)
-    // {
-    //             spaceRatio = 0;
-    //             populationProgressBar.SetProgress(0); // No space
-    // }
-    //          else{
-    //             float overuseRatio = (avgAntsPerBlock - minAntsPerBlock) / (maxAntsPerBlock - minAntsPerBlock);
-    //             spaceRatio = Mathf.Clamp01(1f - overuseRatio) * 100f;
-    //             populationProgressBar.SetProgress((int)spaceRatio);
-    //             }
-
-    // }
+    else 
+    {
+        float avgAntsPerBlock = (float)population / minedBlockCount;
+    if (avgAntsPerBlock <= minAntsPerBlock){
+        spaceRatio = 100;
+        populationProgressBar.SetProgress(100);  // Full space
+    }
+    else if (avgAntsPerBlock >= maxAntsPerBlock)
+    {
+        spaceRatio = 0;
+        populationProgressBar.SetProgress(0); // No space
+    }
+    else{
+        float overuseRatio = (avgAntsPerBlock - minAntsPerBlock) / (maxAntsPerBlock - minAntsPerBlock);
+        spaceRatio = Mathf.Clamp01(1f - overuseRatio) * 100f;
+        populationProgressBar.SetProgress((int)spaceRatio);
+    }
+    }
+    
+}
 
     public void UpdateSatisfaction(){
 
