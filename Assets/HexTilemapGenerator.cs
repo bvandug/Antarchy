@@ -348,7 +348,29 @@ public class HexTilemapGenerator : MonoBehaviour
 
     private IEnumerator FloodTiles(Vector3Int cell)
     {
-        hexMapData[cell].Tile = dirtTile1;
+        Debug.Log("FLOOOOOOOOOOOOOODDDDDDDDD TIMMMMMMMMMMMMMMEEEEEEEEEEEE");
+        TileBase selectedTile = dirtTile1;
+        Debug.Log((-cell.y / 10) % 3);
+        // Loop through dirt tiles every 30 rows (0-9 -> dirt1, 10-19 -> dirt2, 20-29 -> dirt3, then repeat)
+        int yIndex = Mathf.Abs(cell.y / 10) % 3;
+        switch (yIndex)
+        {
+            case 0:
+                selectedTile = dirtTile1;
+                Debug.Log("DIRTILE 1");
+                break;
+            case 1:
+                selectedTile = dirtTile2;
+                Debug.Log("DIRTILE 2");
+                break;
+            case 2:
+                selectedTile = dirtTile3;
+                Debug.Log("DIRTILE 3");
+                break;
+        }
+    
+
+        hexMapData[cell].Tile = WaterTile100;
         tilemap.SetTile(cell, WaterTile100); //destroy water tile
         yield return new WaitForSeconds(0.3f);
         Vector3Int[] firstwave = FindFirstFloodTiles(cell);
@@ -357,40 +379,41 @@ public class HexTilemapGenerator : MonoBehaviour
         foreach(Vector3Int floodTile1 in firstwave)
         {
             tilemap.SetTile(floodTile1, WaterTile100);
-            hexMapData[floodTile1].Tile = dirtTile1;
+            hexMapData[floodTile1].Tile = WaterTile100;
         }
         yield return new WaitForSeconds(0.3f);
 
         foreach (Vector3Int floodTile2 in secondwave)
         {
             tilemap.SetTile(floodTile2, WaterTile100);
-            hexMapData[floodTile2].Tile = dirtTile1;
+            hexMapData[floodTile2].Tile = WaterTile100;
         }
 
         yield return new WaitForSeconds(0.3f);
 
-        tilemap.SetTile(cell, dirtTile1); //destroy water tile
+        hexMapData[cell].Tile = selectedTile;
+        tilemap.SetTile(cell, selectedTile); //destroy water tile
         yield return new WaitForSeconds(0.3f);
 
         foreach (Vector3Int floodTile1 in firstwave)
         {
-            tilemap.SetTile(floodTile1, dirtTile1);
-            hexMapData[floodTile1].Tile = dirtTile1;
+            tilemap.SetTile(floodTile1, selectedTile);
+            hexMapData[floodTile1].Tile = selectedTile;
         }
 
         yield return new WaitForSeconds(0.3f);
 
         foreach (Vector3Int floodTile2 in secondwave)
         {
-            tilemap.SetTile(floodTile2, dirtTile1);
-            hexMapData[floodTile2].Tile = dirtTile1;
+            tilemap.SetTile(floodTile2, selectedTile);
+            hexMapData[floodTile2].Tile = selectedTile;
         }
     }
       
     public int GetMiningCost(Vector3Int mouseCell) 
     { 
         int baseCost = 5; 
-        int increasePerStep = 10;
+        int increasePerStep = 5;
 
         if (hexMapData[mouseCell].Tile == stoneTile)
         {
@@ -604,7 +627,7 @@ public class HexTilemapGenerator : MonoBehaviour
                     {
                         neighborTile.IsActivated = true;
                         waterGenerator += 1;
-                        Debug.Log($"Water Generators amount increased to:{waterGenerator}");
+                        //Debug.Log($"Water Generators amount increased to:{waterGenerator}");
                     }
                 }
 
@@ -614,7 +637,7 @@ public class HexTilemapGenerator : MonoBehaviour
                     {
                         neighborTile.IsActivated = true;
                         foodGenerator += 1;
-                        Debug.Log($"Food Generators amount increased to {foodGenerator}");
+                        //Debug.Log($"Food Generators amount increased to {foodGenerator}");
                     }
                 }
 
@@ -624,7 +647,7 @@ public class HexTilemapGenerator : MonoBehaviour
                     {
                         neighborTile.IsActivated = true;
                         SpawnGenerator += 1;
-                        Debug.Log($"Spawn Generators amount increased to {SpawnGenerator}");
+                        //Debug.Log($"Spawn Generators amount increased to {SpawnGenerator}");
                     }
                 }
             }
@@ -669,7 +692,7 @@ public class HexTilemapGenerator : MonoBehaviour
                         {
                             tilemap.SetTile(tilePos, WaterTile100);
                         }
-                        Debug.Log($"Collecting water at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
+                        //Debug.Log($"Collecting water at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
 
                     }
                 }
@@ -702,7 +725,7 @@ public class HexTilemapGenerator : MonoBehaviour
                         {
                             tilemap.SetTile(tilePos, FoodTile100);
                         }
-                        Debug.Log($"Collecting food at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
+                        //Debug.Log($"Collecting food at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
 
                     }
                 }
@@ -735,7 +758,7 @@ public class HexTilemapGenerator : MonoBehaviour
                         {
                             tilemap.SetTile(tilePos, SpawnTile100);
                         }
-                        Debug.Log($"Spawning ants at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
+                        //Debug.Log($"Spawning ants at {tileData.Tile.name}: {tileData.FillLevel}/{tileData.MaxFill}");
                         
                     }
                 }
@@ -763,7 +786,7 @@ public class HexTilemapGenerator : MonoBehaviour
                     if (CheckWaterTile(tilePos) && tileInfo.IsActivated)
                     {
                         water += tileInfo.FillLevel;
-                        Debug.Log($"Collected {tileInfo.FillLevel} water from tile {tilePos}, water = {water} ");
+                        //Debug.Log($"Collected {tileInfo.FillLevel} water from tile {tilePos}, water = {water} ");
                         tileInfo.FillLevel = 0;
                         tilemap.SetTile(tilePos, WaterTile0);  
                         
@@ -782,7 +805,7 @@ public class HexTilemapGenerator : MonoBehaviour
                     if (CheckFoodTile(tilePos) && tileInfo.IsActivated)
                     {
                         food += tileInfo.FillLevel;
-                        Debug.Log($"Collected {tileInfo.FillLevel} food from tile {tilePos}, food = {water} ");
+                       // Debug.Log($"Collected {tileInfo.FillLevel} food from tile {tilePos}, food = {water} ");
                         tileInfo.FillLevel = 0;
                         tilemap.SetTile(tilePos, FoodTile0);
 
@@ -803,7 +826,7 @@ public class HexTilemapGenerator : MonoBehaviour
                     {
                         population += tileInfo.FillLevel;
                         UpdateAntText();
-                        Debug.Log($"Spawned {tileInfo.FillLevel} ants from tile {tilePos}, food= {food} ");
+                        //Debug.Log($"Spawned {tileInfo.FillLevel} ants from tile {tilePos}, food= {food} ");
                         tileInfo.FillLevel = 0;
                         tilemap.SetTile(tilePos, SpawnTile0);
                         
