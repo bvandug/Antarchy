@@ -32,7 +32,6 @@ public class Settings : MonoBehaviour
     }
 
     public void QuitGame(){
-        Debug.Log("QUIT");
-        Application.Quit();
+        SceneManager.LoadScene("StartScreen");
     }
 }

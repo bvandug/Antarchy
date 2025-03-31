@@ -38,7 +38,7 @@ public class TutorialTilemapGenerator : MonoBehaviour
     private int currentTutorialStage = 0;
     private Vector3Int[] tutorialTilePositions = new Vector3Int[4]; // To store the positions of tutorial tiles
     private TileBase[] originalTileTypes = new TileBase[4]; //new 
-    public float population = 100;
+    public float population = 50;
     private float food = 1000;
     private float water = 2000;
     public TextMeshProUGUI antCountText;
@@ -50,10 +50,10 @@ public class TutorialTilemapGenerator : MonoBehaviour
     //This code is to notify AntAI when the first tile has been mined.
     private bool firstBlockMined = false;
     public Vector3Int firstMinedBlockPosition;
-    public AntAI antAI; // Reference to AntAI script
+    public TutorialAntAI antAI; // Reference to AntAI script
 
     private float minAntsPerBlock = 5f;
-    private float maxAntsPerBlock = 10f;
+    private float maxAntsPerBlock = 30f;
 
     float spaceRatio=100;
     float foodRatio=100;
@@ -123,8 +123,8 @@ public class TutorialTilemapGenerator : MonoBehaviour
     }
     public void startGame(){
         canStartMining = true;
-        StartCoroutine(UpdateResourcesCoroutine()); 
-        time.isPaused = false;
+        
+        
     }
         // Setup the next tutorial tile to be highlighted
     private void SetupTutorialTilePositions()
@@ -312,7 +312,9 @@ public class TutorialTilemapGenerator : MonoBehaviour
 
                 if (!firstBlockMined)
                 {
+                    time.isPaused = false;
                     firstBlockMined = true;
+                    StartCoroutine(UpdateResourcesCoroutine());
                     firstMinedBlockPosition = mouseCell;
                     ProgressTutorial();
                     mineFirstBlockPanel.SetActive(false);
@@ -789,33 +791,33 @@ public class TutorialTilemapGenerator : MonoBehaviour
     
 
 
-    // public void UpdatePopulationBar(){
-    //     populationProgressBar.maximum = 100;
+    public void UpdatePopulationBar(){
+        populationProgressBar.maximum = 100;
         
-    //     if (minedBlockCount == 0)
-    // {
-    //     spaceRatio = 100;
-    //     populationProgressBar.SetProgress(100); // Avoid divide-by-zero, no space yet
-    //     return;
-    // }
+        if (minedBlockCount == 0)
+    {
+        spaceRatio = 100;
+        populationProgressBar.SetProgress(100); // Avoid divide-by-zero, no space yet
+        return;
+    }
 
-    //     float avgAntsPerBlock = (float)population / minedBlockCount;
-    //         if (avgAntsPerBlock <= minAntsPerBlock){
-    //             spaceRatio = 100;
-    //             populationProgressBar.SetProgress(100);  // Full space
-    // }
-    //         else if (avgAntsPerBlock >= maxAntsPerBlock)
-    // {
-    //             spaceRatio = 0;
-    //             populationProgressBar.SetProgress(0); // No space
-    // }
-    //          else{
-    //             float overuseRatio = (avgAntsPerBlock - minAntsPerBlock) / (maxAntsPerBlock - minAntsPerBlock);
-    //             spaceRatio = Mathf.Clamp01(1f - overuseRatio) * 100f;
-    //             populationProgressBar.SetProgress((int)spaceRatio);
-    //             }
+        float avgAntsPerBlock = (float)population / minedBlockCount;
+            if (avgAntsPerBlock <= minAntsPerBlock){
+                spaceRatio = 100;
+                populationProgressBar.SetProgress(100);  // Full space
+    }
+            else if (avgAntsPerBlock >= maxAntsPerBlock)
+    {
+                spaceRatio = 0;
+                populationProgressBar.SetProgress(0); // No space
+    }
+             else{
+                float overuseRatio = (avgAntsPerBlock - minAntsPerBlock) / (maxAntsPerBlock - minAntsPerBlock);
+                spaceRatio = Mathf.Clamp01(1f - overuseRatio) * 100f;
+                populationProgressBar.SetProgress((int)spaceRatio);
+                }
 
-    // }
+    }
 
     public void UpdateSatisfaction(){
 
@@ -823,7 +825,7 @@ public class TutorialTilemapGenerator : MonoBehaviour
         satisfactionProgressBar.maximum=100;
         satisfactionProgressBar.SetProgress((int)satisfactionRatio);
 
-        if (satisfactionRatio < 40 && !gameOverTriggered){
+        if (satisfactionRatio < 30 && !gameOverTriggered){
             
 
             TriggerGameOver("Satisfaction too low, the colony killed you!");
@@ -857,7 +859,7 @@ public class TutorialTilemapGenerator : MonoBehaviour
     }
 
     public void PlayGame(){
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene("GameScene");
         
     }
 

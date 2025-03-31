@@ -33,7 +33,7 @@ public class HexTilemapGenerator : MonoBehaviour
 
     public Dictionary<Vector3Int, HexTileData> hexMapData = new Dictionary<Vector3Int, HexTileData>();
 
-    public float population = 100;
+    public float population = 50;
     private float food = 1000;
     private float water = 2000;
     public TextMeshProUGUI antCountText;
@@ -59,6 +59,7 @@ public class HexTilemapGenerator : MonoBehaviour
     public GameObject cannotMinePanel;
     public TextMeshProUGUI gameOverText;
     private bool gameOverTriggered = false;
+    public Timer time;
     
     
 
@@ -70,7 +71,7 @@ public class HexTilemapGenerator : MonoBehaviour
         GenerateMap(seed);
         //GenerateDemo();
         StartCoroutine(FillGenerators());
-        StartCoroutine(UpdateResourcesCoroutine());
+        //StartCoroutine(UpdateResourcesCoroutine());
         UpdateAntText();
 
         FindFirstObjectByType<AudioManager>().Play("Theme");
@@ -271,6 +272,9 @@ public class HexTilemapGenerator : MonoBehaviour
 
                 if (!firstBlockMined)
                 {
+                    time.isPaused = false;
+                    StartCoroutine(UpdateResourcesCoroutine());
+
                     firstBlockMined = true;
                     firstMinedBlockPosition = mouseCell;
 
