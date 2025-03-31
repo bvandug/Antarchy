@@ -4250,7 +4250,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1151603043}
         m_TargetAssemblyTypeName: Timer, Assembly-CSharp
         m_MethodName: OnTimeUpPanelOk
         m_Mode: 1
