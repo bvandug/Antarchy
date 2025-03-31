@@ -74,7 +74,6 @@ public class HexTilemapGenerator : MonoBehaviour
         cannotMinePanel.SetActive(false);
         seed = UnityEngine.Random.Range(0, 10000);
         GenerateMap(seed);
-        //GenerateDemo();
         StartCoroutine(FillGenerators());
         //StartCoroutine(UpdateResourcesCoroutine());
         UpdateAntText();
@@ -163,47 +162,6 @@ public class HexTilemapGenerator : MonoBehaviour
     }
 
 
-    void GenerateDemo(int seed =1)
-    {
-        tilemap.ClearAllTiles();
-        hexMapData.Clear(); // Reset the dictionary
-
-        for (int y = 0; y < 11; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                float baseNoise = Mathf.PerlinNoise((x + seed) * noiseScale, (y + seed) * noiseScale);
-                float stoneNoise = Mathf.PerlinNoise((x + seed + 500) * stoneNoiseScale, (y + seed + 500) * stoneNoiseScale);
-
-                Vector3Int tilePosition = new Vector3Int(x, -y, 0);
-                TileBase selectedTile;
-
-                if (baseNoise > waterThreshold)
-                    selectedTile = WaterTile100;
-                else if (stoneNoise > stoneThreshold)
-                    selectedTile = stoneTile;
-                else
-                    selectedTile = dirtTile1;
-
-                tilemap.SetTile(tilePosition, selectedTile);
-                hexMapData[tilePosition] = new HexTileData(selectedTile);
-
-            }
-            Vector3Int Food1  = new Vector3Int(3, -(3), 0);
-            tilemap.SetTile(Food1, FoodTile100);
-            hexMapData[Food1] = new HexTileData(FoodTile100);
-
-            Vector3Int Spawn  = new Vector3Int(7, -(1), 0);
-            tilemap.SetTile(Spawn, SpawnTile100);
-            hexMapData[Spawn] = new HexTileData(SpawnTile100);
-
-            Vector3Int Water1 = new Vector3Int(8, -(4), 0);
-            tilemap.SetTile(Water1, WaterTile100);
-            hexMapData[Water1] = new HexTileData(WaterTile100);
-        }
-
-        
-    }
 
 
 

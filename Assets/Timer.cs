@@ -15,7 +15,7 @@ public class Timer : MonoBehaviour
     public GameObject timeUpPanel;
     public bool isPaused = true;
     private Coroutine flashCoroutine;
-    private bool isFlashing = false;
+    
 
     //Here is the AttackManager
     private AttackManager attackManager;
@@ -41,10 +41,21 @@ public class Timer : MonoBehaviour
             }
             
             
-        }else if (remainingTime < 30){
-            timerText.color = warningColor;
-            if (!isFlashing){
+        }else if (remainingTime < 30)
+        {
+            if (flashCoroutine == null) // Start flashing if not already started
+            {
                 flashCoroutine = StartCoroutine(FlashText());
+            }
+        }
+        else
+        {
+            // Ensure text is normal when not in warning range
+            timerText.color = normalColor;
+            if (flashCoroutine != null)
+            {
+                StopCoroutine(flashCoroutine);
+                flashCoroutine = null;
             }
         }
 
@@ -76,17 +87,14 @@ public class Timer : MonoBehaviour
         Time.timeScale = 1f; // Resume if you paused it
 }
 
-    private IEnumerator FlashText(){
-        isFlashing = true;
-         while (remainingTime > 0 && remainingTime < 30)
-            {
-        timerText.enabled = !timerText.enabled;
-        yield return new WaitForSeconds(1f);
-            }
-        timerText.enabled = true;
-        isFlashing = false;
-
-
+    private IEnumerator FlashText()
+    {
+        while (remainingTime > 0 && remainingTime < 30)
+        {
+            timerText.color = (timerText.color == normalColor) ? warningColor : normalColor;
+            yield return new WaitForSeconds(0.5f);
+        }
+        flashCoroutine = null; // Reset coroutine reference when finished
     }
 
 
