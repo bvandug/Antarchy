@@ -9,6 +9,7 @@ using UnityEngine.UIElements;
 using System.Threading.Tasks;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 using Unity.VisualScripting;
+using System.Runtime.CompilerServices;
 
 
 public class HexTilemapGenerator : MonoBehaviour
@@ -114,6 +115,22 @@ public class HexTilemapGenerator : MonoBehaviour
                 }
             }
         }
+        
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            HotkeySpawn();
+        }
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            HotkeyWater();
+        }
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            HotkeyFood();
+        }
+        
+
+
     }
 
     void GenerateMap(int seed)
@@ -348,36 +365,39 @@ public class HexTilemapGenerator : MonoBehaviour
 
     private IEnumerator FloodTiles(Vector3Int cell)
     {
-        Debug.Log("FLOOOOOOOOOOOOOODDDDDDDDD TIMMMMMMMMMMMMMMEEEEEEEEEEEE");
+        int ConnectedMinedTiles = 0;
+        //Debug.Log("FLOOOOOOOOOOOOOODDDDDDDDD TIMMMMMMMMMMMMMMEEEEEEEEEEEE");
         TileBase selectedTile = dirtTile1;
         Debug.Log((-cell.y / 10) % 3);
-        // Loop through dirt tiles every 30 rows (0-9 -> dirt1, 10-19 -> dirt2, 20-29 -> dirt3, then repeat)
+        // Loops through dirt tiles every 30 rows (0-9 -> dirt1, 10-19 -> dirt2, 20-29 -> dirt3, then repeat)
         int yIndex = Mathf.Abs(cell.y / 10) % 3;
         switch (yIndex)
         {
             case 0:
                 selectedTile = dirtTile1;
-                Debug.Log("DIRTILE 1");
+                //Debug.Log("DIRTILE 1");
                 break;
             case 1:
                 selectedTile = dirtTile2;
-                Debug.Log("DIRTILE 2");
+                //Debug.Log("DIRTILE 2");
                 break;
             case 2:
                 selectedTile = dirtTile3;
-                Debug.Log("DIRTILE 3");
+                //Debug.Log("DIRTILE 3");
                 break;
         }
     
 
         hexMapData[cell].Tile = WaterTile100;
-        tilemap.SetTile(cell, WaterTile100); //destroy water tile
+        tilemap.SetTile(cell, WaterTile100);
         yield return new WaitForSeconds(0.3f);
+
         Vector3Int[] firstwave = FindFirstFloodTiles(cell);
         Vector3Int[] secondwave = FindSecondFloodTiles(cell);
 
         foreach(Vector3Int floodTile1 in firstwave)
         {
+            if(hexMapData[floodTile1].Tile == minedTile) { ConnectedMinedTiles++; }
             tilemap.SetTile(floodTile1, WaterTile100);
             hexMapData[floodTile1].Tile = WaterTile100;
         }
@@ -385,14 +405,20 @@ public class HexTilemapGenerator : MonoBehaviour
 
         foreach (Vector3Int floodTile2 in secondwave)
         {
+            if (hexMapData[floodTile2].Tile == minedTile) { ConnectedMinedTiles++; }
             tilemap.SetTile(floodTile2, WaterTile100);
             hexMapData[floodTile2].Tile = WaterTile100;
         }
-
         yield return new WaitForSeconds(0.3f);
 
+
+        int FloodKill = Mathf.Max(1, Mathf.RoundToInt((float)ConnectedMinedTiles / minedBlockCount * population));
+        Debug.Log($"{ConnectedMinedTiles}, {minedBlockCount}, {(float)ConnectedMinedTiles/minedBlockCount}, Flood killed: {FloodKill}");
+        population-=FloodKill;
+
+
         hexMapData[cell].Tile = selectedTile;
-        tilemap.SetTile(cell, selectedTile); //destroy water tile
+        tilemap.SetTile(cell, selectedTile);
         yield return new WaitForSeconds(0.3f);
 
         foreach (Vector3Int floodTile1 in firstwave)
@@ -400,7 +426,6 @@ public class HexTilemapGenerator : MonoBehaviour
             tilemap.SetTile(floodTile1, selectedTile);
             hexMapData[floodTile1].Tile = selectedTile;
         }
-
         yield return new WaitForSeconds(0.3f);
 
         foreach (Vector3Int floodTile2 in secondwave)
@@ -822,7 +847,7 @@ public class HexTilemapGenerator : MonoBehaviour
                     Vector3Int tilePos = kvp.Key;
                    
 
-                    if (CheckSpawnTile(tilePos))
+                    if (CheckSpawnTile(tilePos) && tileInfo.IsActivated)
                     {
                         population += tileInfo.FillLevel;
                         UpdateAntText();
@@ -838,6 +863,65 @@ public class HexTilemapGenerator : MonoBehaviour
         }
     }
 
+    private void HotkeyWater()
+    {
+        foreach (var kvp in hexMapData)
+        {
+            HexTileData tileInfo = kvp.Value;
+            Vector3Int tilePos = kvp.Key;
+
+            if (CheckWaterTile(tilePos) && tileInfo.IsActivated)
+            {
+                water += tileInfo.FillLevel;
+                //Debug.Log($"Collected {tileInfo.FillLevel} water from tile {tilePos}, water = {water} ");
+                tileInfo.FillLevel = 0;
+                tilemap.SetTile(tilePos, WaterTile0);
+
+            }
+            FindFirstObjectByType<AudioManager>().Play("waterSound");
+        }
+    }
+
+    private void HotkeyFood()
+    {
+        foreach (var kvp in hexMapData)
+        {
+            HexTileData tileInfo = kvp.Value;
+            Vector3Int tilePos = kvp.Key;
+
+            if (CheckFoodTile(tilePos) && tileInfo.IsActivated)
+            {
+                food += tileInfo.FillLevel;
+                // Debug.Log($"Collected {tileInfo.FillLevel} food from tile {tilePos}, food = {water} ");
+                tileInfo.FillLevel = 0;
+                tilemap.SetTile(tilePos, FoodTile0);
+
+            }
+            FindFirstObjectByType<AudioManager>().Play("foodSound");
+        }
+    }
+
+    private void HotkeySpawn()
+    {
+        foreach (var kvp in hexMapData)
+        {
+            HexTileData tileInfo = kvp.Value;
+            Vector3Int tilePos = kvp.Key;
+
+
+            if (CheckSpawnTile(tilePos) && tileInfo.IsActivated)
+            {
+                population += tileInfo.FillLevel;
+                UpdateAntText();
+                //Debug.Log($"Spawned {tileInfo.FillLevel} ants from tile {tilePos}, food= {food} ");
+                tileInfo.FillLevel = 0;
+                tilemap.SetTile(tilePos, SpawnTile0);
+
+            }
+
+            FindFirstObjectByType<AudioManager>().Play("eggHatching");
+        }
+    }
     private IEnumerator UpdateResourcesCoroutine(){
         while (true){
             UpdateProgressBars();
