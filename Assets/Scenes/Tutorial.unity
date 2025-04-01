@@ -14552,7 +14552,7 @@ MonoBehaviour:
     be careful!
 
     Digging underneath a water tile will cause a flood and destory
-    the tunnel around it!'
+    the tunnels around it!'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
   m_sharedMaterial: {fileID: -3975550156239310541, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
@@ -16259,7 +16259,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "This tells you how happy your colony is!\nIf your satisfaction drops too
-    low below that white line, the colony will overthrow and kill you! \nSatisifaction
+    low, below that white line, the colony will overthrow and kill you! \nSatisifaction
     depends on food, water and space!"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
