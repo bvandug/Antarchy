@@ -61,6 +61,7 @@ public class Timer : MonoBehaviour
         {
             // Ensure text is normal when not in warning range
             timerText.color = normalColor;
+            attackManager.populationNeeded1.color = normalColor;
             if (flashCoroutine != null)
             {
                 StopCoroutine(flashCoroutine);
@@ -97,6 +98,7 @@ public class Timer : MonoBehaviour
         ResetTimer(); // Reset timer values
         isPaused = false; // Unpause the timer
         timeUpPanel.SetActive(false);
+        attackManager.hideAttackerImage(attackManager.nextAttackType);
         attackManager.DecideNextAttack();
 }
 
@@ -105,6 +107,7 @@ public class Timer : MonoBehaviour
         while (remainingTime > 0 && remainingTime < 30)
         {
             timerText.color = (timerText.color == normalColor) ? warningColor : normalColor;
+            attackManager.populationNeeded1.color = (attackManager.populationNeeded1.color == normalColor) ? warningColor : normalColor;
             yield return new WaitForSeconds(0.5f);
         }
         flashCoroutine = null; // Reset coroutine reference when finished

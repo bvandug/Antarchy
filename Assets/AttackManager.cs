@@ -14,7 +14,7 @@ public class AttackManager : MonoBehaviour
     private TutorialTilemapGenerator tutorialMapGenerator;
     private int attackCount = 0;
     public bool gameOver = false;
-    private int nextAttackType;
+    public int nextAttackType;
     private int nextAntsKilled;
 
     public TextMeshProUGUI populationNeeded;
@@ -72,13 +72,12 @@ public class AttackManager : MonoBehaviour
         attackCount++;
         nextAntsKilled = 5 * attackCount * attackCount;
         nextAttackType = GetNextNumber();
-        nextAttackType =2;
         showAttackerImage(nextAttackType);
         if (nextAttackType == 2){
             nextAntsKilled = 2*nextAntsKilled;
         }
         populationNeeded.text = string.Format("Population Needed: "+ nextAntsKilled + " ants");
-        populationNeeded1.text = string.Format("Population Needed: "+ nextAntsKilled + " ants");
+        populationNeeded1.text = string.Format(nextAntsKilled + " ants");
         attackerName.text = string.Format("Next Attacker: "+ GetAttackName(nextAttackType));
         attackHint.text = string.Format("Hint: "+ GetAttackDamage(nextAttackType));
         
