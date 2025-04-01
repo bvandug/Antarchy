@@ -3,29 +3,39 @@ using UnityEngine;
 public class HexCameraController : MonoBehaviour
 {
     public Camera cam;
-    private float scrollSpeed = 10f;   // Speed of vertical scrolling
-    private float tileHeight = 0.75f; // Approximate height of a hex tile
-    private int gridHeight = 300;      // Number of hex rows
+    private float scrollSpeed = 10f;  
+    private float tileHeight = 0.75f; 
+    private int gridHeight = 300;      
 
     private float minY;
     private float maxY;
+    private bool scrollingEnabled = true;
 
     void Start()
     {
         if (cam == null)
         {
-            cam = Camera.main; // Get the main camera if not assigned
+            cam = Camera.main; 
         }
 
-        minY = 0f;  // Start at the top of the grid
-        maxY = -(gridHeight) * tileHeight; // Move downward instead of upward
+        if (FindFirstObjectByType<TutorialTilemapGenerator>() != null)
+        {
+            scrollingEnabled = false; // Disable scrolling for tutorial maps
+            Debug.Log("Tutorial map detected. Scrolling disabled.");
+        }
+
+        minY = 0f;
+        maxY = -(gridHeight) * tileHeight;
 
         CenterCamera();
     }
 
     void Update()
     {
-        HandleScrolling();
+        if (scrollingEnabled)
+        {
+            HandleScrolling();
+        }
     }
 
     void HandleScrolling()
@@ -38,7 +48,6 @@ public class HexCameraController : MonoBehaviour
 
     void CenterCamera()
     {
-        // Centers the camera at the top of the grid
         cam.transform.position = new Vector3(15, minY, -15);
     }
 }

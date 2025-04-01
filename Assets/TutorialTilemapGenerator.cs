@@ -119,6 +119,18 @@ public class TutorialTilemapGenerator : MonoBehaviour
 
                 }
             }
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                HotkeySpawn();
+            }
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                HotkeyWater();
+            }
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                HotkeyFood();
+            }
         }
     }
     public void startGame(){
@@ -640,13 +652,19 @@ public class TutorialTilemapGenerator : MonoBehaviour
 
     public void CollectResource(Vector3Int cell)
     {
-        if (hexMapData.TryGetValue(cell, out var tileData)) 
+        if (hexMapData.TryGetValue(cell, out var tileData))
         {
             if (tileData.IsDisabled)
             {
                 Debug.Log($"Tile at {cell} is disabled! Cannot collect resources.");
                 return;
-                }
+            }
+            if (!tileData.IsActivated)
+            {
+                Debug.Log($"Tile at {cell} is not activated! Cannot collect resources.");
+                return;
+            }
+
             if (CheckWaterTile(cell))
             {
                 foreach (var kvp in hexMapData)
@@ -657,12 +675,12 @@ public class TutorialTilemapGenerator : MonoBehaviour
                     if (CheckWaterTile(tilePos) && tileInfo.IsActivated)
                     {
                         water += tileInfo.FillLevel;
-                        Debug.Log($"Collected {tileInfo.FillLevel} water from tile {tilePos}, water = {water} ");
+                        //Debug.Log($"Collected {tileInfo.FillLevel} water from tile {tilePos}, water = {water} ");
                         tileInfo.FillLevel = 0;
-                        tilemap.SetTile(tilePos, WaterTile0);  
-                        
+                        tilemap.SetTile(tilePos, WaterTile0);
+                        FindFirstObjectByType<AudioManager>().Play("waterSound");
                     }
-                    FindFirstObjectByType<AudioManager>().Play("waterSound");
+
                 }
             }
 
@@ -676,12 +694,12 @@ public class TutorialTilemapGenerator : MonoBehaviour
                     if (CheckFoodTile(tilePos) && tileInfo.IsActivated)
                     {
                         food += tileInfo.FillLevel;
-                        Debug.Log($"Collected {tileInfo.FillLevel} food from tile {tilePos}, food = {water} ");
+                        // Debug.Log($"Collected {tileInfo.FillLevel} food from tile {tilePos}, food = {water} ");
                         tileInfo.FillLevel = 0;
                         tilemap.SetTile(tilePos, FoodTile0);
-
+                        FindFirstObjectByType<AudioManager>().Play("foodSound");
                     }
-                    FindFirstObjectByType<AudioManager>().Play("foodSound");
+
                 }
             }
 
@@ -691,21 +709,98 @@ public class TutorialTilemapGenerator : MonoBehaviour
                 {
                     HexTileData tileInfo = kvp.Value;
                     Vector3Int tilePos = kvp.Key;
-                   
 
-                    if (CheckSpawnTile(tilePos))
+
+                    if (CheckSpawnTile(tilePos) && tileInfo.IsActivated)
                     {
                         population += tileInfo.FillLevel;
                         UpdateAntText();
-                        Debug.Log($"Spawned {tileInfo.FillLevel} ants from tile {tilePos}, food= {food} ");
+                        //Debug.Log($"Spawned {tileInfo.FillLevel} ants from tile {tilePos}, food= {food} ");
                         tileInfo.FillLevel = 0;
                         tilemap.SetTile(tilePos, SpawnTile0);
-                        
+                        FindFirstObjectByType<AudioManager>().Play("eggHatching");
+
                     }
 
-                    FindFirstObjectByType<AudioManager>().Play("eggHatching");
+
                 }
             }
+        }
+    }
+
+    private void HotkeyWater()
+    {
+        foreach (var kvp in hexMapData)
+        {
+            HexTileData tileInfo = kvp.Value;
+            Vector3Int tilePos = kvp.Key;
+
+            if (tileInfo.IsDisabled)
+            {
+                Debug.Log($"Tile at {tilePos} is disabled! Cannot collect resources.");
+                return;
+            }
+
+            if (CheckWaterTile(tilePos) && tileInfo.IsActivated)
+            {
+                water += tileInfo.FillLevel;
+                //Debug.Log($"Collected {tileInfo.FillLevel} water from tile {tilePos}, water = {water} ");
+                tileInfo.FillLevel = 0;
+                tilemap.SetTile(tilePos, WaterTile0);
+                FindFirstObjectByType<AudioManager>().Play("waterSound");
+            }
+
+        }
+    }
+
+    private void HotkeyFood()
+    {
+        foreach (var kvp in hexMapData)
+        {
+            HexTileData tileInfo = kvp.Value;
+            Vector3Int tilePos = kvp.Key;
+
+            if (tileInfo.IsDisabled)
+            {
+                Debug.Log($"Tile at {tilePos} is disabled! Cannot collect resources.");
+                return;
+            }
+
+            if (CheckFoodTile(tilePos) && tileInfo.IsActivated)
+            {
+                food += tileInfo.FillLevel;
+                // Debug.Log($"Collected {tileInfo.FillLevel} food from tile {tilePos}, food = {water} ");
+                tileInfo.FillLevel = 0;
+                tilemap.SetTile(tilePos, FoodTile0);
+                FindFirstObjectByType<AudioManager>().Play("foodSound");
+            }
+
+        }
+    }
+
+    private void HotkeySpawn()
+    {
+        foreach (var kvp in hexMapData)
+        {
+            HexTileData tileInfo = kvp.Value;
+            Vector3Int tilePos = kvp.Key;
+
+            if (tileInfo.IsDisabled)
+            {
+                Debug.Log($"Tile at {tilePos} is disabled! Cannot collect resources.");
+                return;
+            }
+            if (CheckSpawnTile(tilePos) && tileInfo.IsActivated)
+            {
+                population += tileInfo.FillLevel;
+                UpdateAntText();
+                //Debug.Log($"Spawned {tileInfo.FillLevel} ants from tile {tilePos}, food= {food} ");
+                tileInfo.FillLevel = 0;
+                tilemap.SetTile(tilePos, SpawnTile0);
+                FindFirstObjectByType<AudioManager>().Play("eggHatching");
+            }
+
+
         }
     }
 
