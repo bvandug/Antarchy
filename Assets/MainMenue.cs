@@ -8,6 +8,9 @@ public class MainMenue : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     
     public void PlayGame(){
+        Time.timeScale = 1f;
+        // SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        //SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
         SceneManager.LoadScene("GameScene");
         
     }
