@@ -191,7 +191,7 @@ public class AttackManager : MonoBehaviour
         switch (attackType)
         {
             case 1: return "Termites follow the same diet";
-            case 2: return "The Anteater is feeling hungry ";
+            case 2: return "The Anteater eats DOUBLE";
             case 3: return "Loves the taste of eggs";
             case 4: return "The Lizard is feeling thirsty";
             case 5: return "The Exterminator has poison on hand";
