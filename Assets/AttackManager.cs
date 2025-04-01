@@ -71,9 +71,12 @@ public class AttackManager : MonoBehaviour
     public void DecideNextAttack(){
         attackCount++;
         nextAntsKilled = 5 * attackCount * attackCount;
-        hideAttackerImage(nextAttackType);
         nextAttackType = GetNextNumber();
+        nextAttackType =2;
         showAttackerImage(nextAttackType);
+        if (nextAttackType == 2){
+            nextAntsKilled = 2*nextAntsKilled;
+        }
         populationNeeded.text = string.Format("Population Needed: "+ nextAntsKilled + " ants");
         populationNeeded1.text = string.Format("Population Needed: "+ nextAntsKilled + " ants");
         attackerName.text = string.Format("Next Attacker: "+ GetAttackName(nextAttackType));
@@ -229,7 +232,7 @@ public class AttackManager : MonoBehaviour
 
     void antEaterAttack()
     {
-        attackDamage.text = string.Format("The antEater ate an extra "+ nextAntsKilled+ " ants");
+        attackDamage.text = string.Format("The antEater ate an extra "+ nextAntsKilled/2 + " ants");
         mapGenerator.population -= nextAntsKilled;
 
 
