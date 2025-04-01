@@ -17,6 +17,7 @@ public class AttackManager : MonoBehaviour
     private int nextAntsKilled;
 
     public TextMeshProUGUI populationNeeded;
+    public TextMeshProUGUI populationNeeded1;
     public TextMeshProUGUI attackerName;
     public TextMeshProUGUI remainingPopulation;
     public TextMeshProUGUI attackDamage;
@@ -66,6 +67,7 @@ public class AttackManager : MonoBehaviour
         nextAttackType = GetNextNumber();
         showAttackerImage(nextAttackType);
         populationNeeded.text = string.Format("Population Needed: "+ nextAntsKilled + " ants");
+        populationNeeded1.text = string.Format("Population Needed: "+ nextAntsKilled + " ants");
         attackerName.text = string.Format("Next Attacker: "+ GetAttackName(nextAttackType));
         attackHint.text = string.Format("Hint: "+ GetAttackDamage(nextAttackType));
         
