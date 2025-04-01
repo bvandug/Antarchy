@@ -695,7 +695,7 @@ public class HexTilemapGenerator : MonoBehaviour
                 {
                     if (tileData.FillLevel < tileData.MaxFill)
                     {
-                        tileData.FillLevel += 5f; // Increase fill level
+                        tileData.FillLevel += 4f; // Increase fill level
                         if (tileData.FillLevel <= 50f)
                         {
                             tilemap.SetTile(tilePos, WaterTile0);
