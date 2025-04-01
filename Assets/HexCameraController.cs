@@ -48,6 +48,6 @@ public class HexCameraController : MonoBehaviour
 
     void CenterCamera()
     {
-        cam.transform.position = new Vector3(15, minY, -15);
+        cam.transform.position = new Vector3(15.81f, minY, -15);
     }
 }

@@ -7549,6 +7549,7 @@ MonoBehaviour:
   SpawnTile50: {fileID: 11400000, guid: 462a0a53b804b0e449ca783281c2b461, type: 2}
   SpawnTile75: {fileID: 11400000, guid: 8c2d2919c4871824da436cf70f28d2cc, type: 2}
   SpawnTile100: {fileID: 11400000, guid: 8ab2e49c4a84f73479f57cd86fa5e198, type: 2}
+  unbreakableTile: {fileID: 11400000, guid: 17d0022f491e06d479d6acaadac2481b, type: 2}
   noiseScale: 0.6
   stoneNoiseScale: 0.15
   waterThreshold: 0.8

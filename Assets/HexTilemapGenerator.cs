@@ -15,7 +15,7 @@ using UnityEngine.Rendering.Universal;
 
 public class HexTilemapGenerator : MonoBehaviour
 {
-    private int width = 28;
+    private int width = 30;
     private int height = 300;
     public Tilemap tilemap;
     public TileBase dirtTile1, dirtTile2, dirtTile3,
@@ -25,7 +25,8 @@ public class HexTilemapGenerator : MonoBehaviour
         CrackTile1, CrackTile2, CrackTile3,
         Dirt2crack1, Dirt2crack2, Dirt2crack3,
         Dirt3crack1, Dirt3crack2, Dirt3crack3,
-        SpawnTile0, SpawnTile25, SpawnTile50, SpawnTile75, SpawnTile100;
+        SpawnTile0, SpawnTile25, SpawnTile50, SpawnTile75, SpawnTile100,
+        unbreakableTile;
 
     public float noiseScale = 0.3f; // Lower for bigger clusters
     public float stoneNoiseScale = 0.15f; // Stone uses separate noise for better clustering
@@ -151,7 +152,9 @@ public class HexTilemapGenerator : MonoBehaviour
                 Vector3Int tilePosition = new Vector3Int(x, -y, 0);
                 TileBase selectedTile = dirtTile1;
 
-                if (baseNoise > waterThreshold)
+                if (x ==0 || x ==width-1)
+                    selectedTile = unbreakableTile;
+                else if (baseNoise > waterThreshold)
                     selectedTile = WaterTile100;
                 else if (stoneNoise > stoneThreshold)
                     selectedTile = stoneTile;
@@ -172,6 +175,8 @@ public class HexTilemapGenerator : MonoBehaviour
                     }
                 }
 
+
+
                 tilemap.SetTile(tilePosition, selectedTile);
                 hexMapData[tilePosition] = new HexTileData(selectedTile);
             }
@@ -189,7 +194,7 @@ public class HexTilemapGenerator : MonoBehaviour
     {
         for (int y = 5; y < height; y += 5)
         {
-            int randomX = UnityEngine.Random.Range(0, width);
+            int randomX = UnityEngine.Random.Range(1, width);
             int randomYOffset = UnityEngine.Random.Range(-3, 3);
             int clampedY = Mathf.Clamp(y + randomYOffset, 0, height-1);
 
@@ -203,10 +208,12 @@ public class HexTilemapGenerator : MonoBehaviour
     void EnsureSpawnPlacement()
     {
         //ensure spawn with ant nest on row 2 with surronding stone
-        int randomStartX = UnityEngine.Random.Range(0, width);
+        int randomStartX = UnityEngine.Random.Range(3, width);
         Vector3Int TilePosStart = new Vector3Int(randomStartX, -1, 0);
         tilemap.SetTile(TilePosStart, SpawnTile100);
         hexMapData[TilePosStart].Tile = SpawnTile100;;
+
+
         //make surrounding tiles-> dirt
         Vector3Int[] neighbors = GetHexNeighbors(TilePosStart);
         foreach (Vector3Int neighbor in neighbors)
@@ -221,9 +228,10 @@ public class HexTilemapGenerator : MonoBehaviour
             }
         }
 
+
         for (int y = 10; y < height; y += 15)
         {
-            int randomX = UnityEngine.Random.Range(0, width);
+            int randomX = UnityEngine.Random.Range(1, width);
             int randomYOffset = UnityEngine.Random.Range(-3, 3);
             int clampedY = Mathf.Clamp(y + randomYOffset, 0, height-1);
             Vector3Int tilePosition = new Vector3Int(randomX, -(clampedY), 0);
@@ -446,6 +454,11 @@ public class HexTilemapGenerator : MonoBehaviour
         if (hexMapData[mouseCell].Tile == stoneTile)
         {
             return 10*(baseCost + ((Mathf.Abs(mouseCell.y) / 10) * increasePerStep));
+        }
+
+        if(hexMapData[mouseCell].Tile == unbreakableTile)
+        {
+            return 99999;
         }
 
             return baseCost + ((Mathf.Abs(mouseCell.y) / 10) * increasePerStep);
