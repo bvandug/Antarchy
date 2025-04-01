@@ -930,11 +930,12 @@ public class HexTilemapGenerator : MonoBehaviour
             HexTileData tileInfo = kvp.Value;
             Vector3Int tilePos = kvp.Key;
 
+            /*
             if (tileInfo.IsDisabled)
             {
                 Debug.Log($"Tile at {tilePos} is disabled! Cannot collect resources.");
                 return;
-            }
+            }*/
             if (CheckSpawnTile(tilePos) && tileInfo.IsActivated)
             {
                 population += tileInfo.FillLevel;
