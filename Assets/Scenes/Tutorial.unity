@@ -2457,8 +2457,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Lastly, this is your space bar. Dig tunnels to ensure your growing population
-    has enough space, otherwise they will start feeling cramped
+  m_text: Lastly, this bar shows how crowded the tunnels are. Dig tunnels to ensure
+    your growing population has enough space, otherwise they will start feeling cramped.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
   m_sharedMaterial: {fileID: -3975550156239310541, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
@@ -2976,7 +2976,7 @@ MonoBehaviour:
   m_text: 'Lets get Started! Click on the highlighted tile in the first row to start
     digging your first tunnel!
 
-    Remember, Digging tunnels cost lives!'
+    Remember, Digging tunnels costs ant lives!'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
   m_sharedMaterial: {fileID: -3975550156239310541, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
@@ -6475,7 +6475,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: Now lets make sure we have enough food! Dig towards a food source to keep
-    the colony happy and full!
+    the colony happy and full! You can collect food by clicking on a food tile or
+    using the hotkey "E"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
   m_sharedMaterial: {fileID: -3975550156239310541, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
@@ -10068,8 +10069,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "The next two bars are your food and water. \nThe food and water bar depend
-    on how hungry your colony is, collect food and water to keep them full and happy.\n"
+  m_text: "The next two bars are your food and water. \nThe food and water decreases
+    faster when you have more ants, collect food and water to keep them full and
+    happy.\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
   m_sharedMaterial: {fileID: -3975550156239310541, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
@@ -10205,8 +10207,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Great! Now lets start growing the colony. Dig a tunnel to the nearest
-    nesting tile! '
+  m_text: "Great! Now lets start growing the colony. Dig a tunnel to the nearest
+    nesting tile! They can store up to 100 ants each, which you can hatch anytime
+    by clicking on a \nspawn tile or use the hotkey \"Q\"."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
   m_sharedMaterial: {fileID: -3975550156239310541, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
@@ -11413,9 +11416,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Great! Keep clicking on the food, water and nesting tiles as they regenerate
-    to fill up your bars and keep the colony happy! If you want you can also use
-    hotkeys to collect resources- Q for spawning, W- water and F- food.
+  m_text: Great! Remember to keep clicking on the food, water and nesting tiles as
+    they regenerate to fill up your bars and keep the colony happy! You can also
+    use hotkeys to collect resources- Q for spawning, W- water and F- food.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
   m_sharedMaterial: {fileID: -3975550156239310541, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
@@ -14685,11 +14688,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Now that our colony is growing, lets make sure it has enough water, but
-    be careful!
-
-    Digging underneath a water tile will cause a flood and destory
-    the tunnels around it!'
+  m_text: "Now that our colony is growing, lets make sure it has enough water. Click
+    on a water tile or use the hotkey \"W\" to collect .\nBe careful: digging underneath
+    a water tile will cause \n a flood and destory the tunnels around it!"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
   m_sharedMaterial: {fileID: -3975550156239310541, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
@@ -14825,7 +14826,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TIME TILL ATTACK
+  m_text: 'TIME TIL ATTACK:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
   m_sharedMaterial: {fileID: -3975550156239310541, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
@@ -18168,7 +18169,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'You are the Queen. The heart, the ruler, the last hope of your kind.
+  m_text: 'You are the Queen, the heart, the ruler, the last hope of your kind.
 
 '
   m_isRightToLeft: 0
