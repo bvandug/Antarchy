@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 using Unity.VisualScripting;
 using System.Runtime.CompilerServices;
+using UnityEngine.Rendering.Universal;
 
 
 public class HexTilemapGenerator : MonoBehaviour
@@ -83,7 +84,6 @@ public class HexTilemapGenerator : MonoBehaviour
         UpdateAntText();
 
         FindFirstObjectByType<AudioManager>().Play("Theme");
-        
 
     }
 
@@ -803,7 +803,7 @@ public class HexTilemapGenerator : MonoBehaviour
             {
                 Debug.Log($"Tile at {cell} is disabled! Cannot collect resources.");
                 return;
-                }
+            }
             if (CheckWaterTile(cell))
             {
                 foreach (var kvp in hexMapData)
@@ -873,6 +873,12 @@ public class HexTilemapGenerator : MonoBehaviour
             HexTileData tileInfo = kvp.Value;
             Vector3Int tilePos = kvp.Key;
 
+            if (tileInfo.IsDisabled)
+            {
+                Debug.Log($"Tile at {tilePos} is disabled! Cannot collect resources.");
+                return;
+            }
+
             if (CheckWaterTile(tilePos) && tileInfo.IsActivated)
             {
                 water += tileInfo.FillLevel;
@@ -891,6 +897,12 @@ public class HexTilemapGenerator : MonoBehaviour
         {
             HexTileData tileInfo = kvp.Value;
             Vector3Int tilePos = kvp.Key;
+
+            if (tileInfo.IsDisabled)
+            {
+                Debug.Log($"Tile at {tilePos} is disabled! Cannot collect resources.");
+                return;
+            }
 
             if (CheckFoodTile(tilePos) && tileInfo.IsActivated)
             {
@@ -911,7 +923,11 @@ public class HexTilemapGenerator : MonoBehaviour
             HexTileData tileInfo = kvp.Value;
             Vector3Int tilePos = kvp.Key;
 
-
+            if (tileInfo.IsDisabled)
+            {
+                Debug.Log($"Tile at {tilePos} is disabled! Cannot collect resources.");
+                return;
+            }
             if (CheckSpawnTile(tilePos) && tileInfo.IsActivated)
             {
                 population += tileInfo.FillLevel;
