@@ -804,6 +804,12 @@ public class HexTilemapGenerator : MonoBehaviour
                 Debug.Log($"Tile at {cell} is disabled! Cannot collect resources.");
                 return;
             }
+            if (!tileData.IsActivated)
+            {
+                Debug.Log($"Tile at {cell} is not activated! Cannot collect resources.");
+                return;
+            }
+
             if (CheckWaterTile(cell))
             {
                 foreach (var kvp in hexMapData)

@@ -1562,7 +1562,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'This tells keeps track of your population.
+  m_text: 'This keeps track of your population.
 
     Remember, if your population
     drops to zero, your colony will die out completely!'
@@ -16258,8 +16258,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "This tells you how happy your colony is!\n If your satisfaction drops
-    too low below that white linef, the colony will overthrow and kill you! \nSatisifaction
+  m_text: "This tells you how happy your colony is!\nIf your satisfaction drops too
+    low below that white line, the colony will overthrow and kill you! \nSatisifaction
     depends on food, water and space!"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb823fa6cbd79465dacc7e8c23309b5d, type: 2}
