@@ -232,7 +232,7 @@ public class AttackManager : MonoBehaviour
     void antEaterAttack()
     {
         attackDamage.text = string.Format("The antEater ate an extra "+ nextAntsKilled/2 + " ants");
-        mapGenerator.population -= nextAntsKilled;
+        //mapGenerator.population -= nextAntsKilled;
 
 
         Debug.Log("Attack2");
