@@ -817,9 +817,9 @@ public class HexTilemapGenerator : MonoBehaviour
                         //Debug.Log($"Collected {tileInfo.FillLevel} water from tile {tilePos}, water = {water} ");
                         tileInfo.FillLevel = 0;
                         tilemap.SetTile(tilePos, WaterTile0);  
-                        
+                        FindFirstObjectByType<AudioManager>().Play("waterSound");
                     }
-                    FindFirstObjectByType<AudioManager>().Play("waterSound");
+                    
                 }
             }
 
@@ -836,9 +836,9 @@ public class HexTilemapGenerator : MonoBehaviour
                        // Debug.Log($"Collected {tileInfo.FillLevel} food from tile {tilePos}, food = {water} ");
                         tileInfo.FillLevel = 0;
                         tilemap.SetTile(tilePos, FoodTile0);
-
+                        FindFirstObjectByType<AudioManager>().Play("foodSound");
                     }
-                    FindFirstObjectByType<AudioManager>().Play("foodSound");
+                    
                 }
             }
 
@@ -857,10 +857,11 @@ public class HexTilemapGenerator : MonoBehaviour
                         //Debug.Log($"Spawned {tileInfo.FillLevel} ants from tile {tilePos}, food= {food} ");
                         tileInfo.FillLevel = 0;
                         tilemap.SetTile(tilePos, SpawnTile0);
+                        FindFirstObjectByType<AudioManager>().Play("eggHatching");
                         
                     }
 
-                    FindFirstObjectByType<AudioManager>().Play("eggHatching");
+                    
                 }
             }
         }
