@@ -11,6 +11,7 @@ public class AttackManager : MonoBehaviour
 {
     private Tilemap tilemap;
     private HexTilemapGenerator mapGenerator;
+    private TutorialTilemapGenerator tutorialMapGenerator;
     private int attackCount = 0;
     public bool gameOver = false;
     private int nextAttackType;
@@ -49,14 +50,21 @@ public class AttackManager : MonoBehaviour
 
     void Start()
     {
+        mapGenerator = FindFirstObjectByType<HexTilemapGenerator>();
+        if (mapGenerator == null)
+        {
+            Debug.LogWarning("HexTilemapGenerator not found. Checking for TutorialTilemapGenerator...");
+            tutorialMapGenerator = FindFirstObjectByType<TutorialTilemapGenerator>();
+            tilemap = tutorialMapGenerator.tilemap;
+        }
+        else { tilemap = mapGenerator.tilemap; }
+
+
         ResetAvailableNumbers();
         for (int i=1; i < 6; i++){
             hideAttackerImage(i);
         }
-        DecideNextAttack();
-        mapGenerator = FindFirstObjectByType<HexTilemapGenerator>(); 
-        tilemap = mapGenerator.tilemap;
-    
+        DecideNextAttack();    
     }
     
 
